@@ -19,6 +19,8 @@ export default function App() {
   const [areaName, setAreaName] = useState("");
   // Finaliser la création de la zone du plan
   const [confirm, setConfirm] = useState(false);
+  // Les points placés pour la création par points
+  const [points, setPoints] = useState([]);
 
   // La fonction qui est appelé au clique pour débuter la création d'un RECTANGLE
   const handleMouseDownRect = (event) => {
@@ -69,12 +71,6 @@ export default function App() {
     setConfirm(false);
     console.log(shapes);
   };
-
-  // La fonction qui est appelé au clique pour débuter la création d'un ARC
-  const handleMouseDownArc = (event) => {};
-
-  // La fonction appelé au mouvement de la souris pendant la création d'un ARC
-  const handleMouseMoveArc = (event) => {};
 
   return (
     <div className={confirm ? "containerCF" : "container"}>
@@ -128,24 +124,33 @@ export default function App() {
         mouse
         onMouseDown={(e) => {
           // eslint-disable-next-line no-unused-expressions
-          choosenShape === "square" ? handleMouseDownRect(e) : null;
+          choosenShape === "square"
+            ? handleMouseDownRect(e)
+            : choosenShape === "line"
+            ? null
+            : null;
         }}
         onMousemove={(e) => {
           // eslint-disable-next-line no-unused-expressions
-          choosenShape === "square" ? handleMouseMoveRect(e) : null;
+          choosenShape === "square"
+            ? handleMouseMoveRect(e)
+            : choosenShape === "line"
+            ? null
+            : null;
         }}
         // FONCTION QUI VA PROPOSER DE RENSEIGNER LES INFOS UNE FOIS LA FORME CREEE
         onMouseup={(e) => {
           setDrawing(false);
-          setConfirm(true);
+          // setConfirm(true);
         }}
       >
-        <Layer style={{ backgroundColor: "red" }}>
+        <Layer>
           {shapes?.map((shape) => {
             if (shape.shape === "rect") {
               return (
                 <React.Fragment key={shape.id}>
                   <Rect
+                    stroke="black"
                     key={shape.id}
                     x={shape.x}
                     y={shape.y}
@@ -161,37 +166,28 @@ export default function App() {
                   />
                 </React.Fragment>
               );
-            } else {
-              return null;
+            } else if (shape.shape === "line") {
+              return (
+                <React.Fragment key={shape.id}>
+                  <Line
+                    x={20}
+                    y={200}
+                    points={[100, 90, 100, 20, 300, 400]}
+                    tension={0.5}
+                    closed
+                    stroke="black"
+                    fill="#00000080"
+                  />
+                  <Text
+                    x={shape.x}
+                    y={shape.y - 20}
+                    text={shape.name}
+                    fontSize={16}
+                  />
+                </React.Fragment>
+              );
             }
           })}
-          {/* <Rect
-            x={20}
-            y={50}
-            width={100}
-            height={100}
-            fill="red"
-            shadowBlur={10}
-          />
-          <Line
-          x={20}
-          y={200}
-          points={[0, 0, 100, 0, 100, 100]}
-          tension={0.5}
-          closed
-          stroke="black"
-          fillLinearGradientStartPoint={{ x: -50, y: -50 }}
-          fillLinearGradientEndPoint={{ x: 50, y: 50 }}
-          fillLinearGradientColorStops={[0, 'red', 1, 'yellow']}
-        />
-          <Rect
-            x={20}
-            y={270}
-            width={100}
-            height={100}
-            fill="green"
-            shadowBlur={10}
-          /> */}
         </Layer>
       </Stage>
       {confirm ? (
