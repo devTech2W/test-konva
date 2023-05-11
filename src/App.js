@@ -7,114 +7,79 @@ import { Stage, Layer, Rect, Arc, Text, Circle, Line } from "react-konva";
 export default function App() {
   // Tableau contenant toutes les formes du plan
   const [shapes, setShapes] = useState([]);
-  // La position de départ à la création d'une forme
-  const [startPos, setStartPos] = useState(null);
-  // La position actuelle pendant la création de la forme
-  const [currentPos, setCurrentPos] = useState(null);
+  // Passer de l'état de dessiner à non
+  const [drawing, setDrawing] = useState(false);
   // La dernière forme créee
   const [currentShape, setCurrentShape] = useState(null);
   // La forme que l'utilisateur veut dessiner
   const [choosenShape, setChoosenShape] = useState("square");
-  // La fonction appelé lors du dessin selon la forme selectionnée
-  const [drawFunctions, setDrawFunctions] = useState([
-    { handleMouseDown: null },
-    { handleMouseMove: null },
-  ]);
-
-  // Initialisations au chargement de la page
-  // useEffect(() => {
-  //   setDrawFunctions([
-  //     { handleMouseDown: handleMouseDownRect() },
-  //     { handleMouseMove: handleMouseMoveRect() },
-  //   ]);
-  // }, []);
-
-  // Assigner une fonction de création de forme selon la forme selectionnée
-  useEffect(() => {
-    // eslint-disable-next-line no-unused-expressions
-    choosenShape === "square"
-      ? setDrawFunctions([
-          { handleMouseDown: handleMouseDownRect() },
-          { handleMouseMove: handleMouseMoveRect() },
-        ])
-      : null;
-  }, [choosenShape]);
+  // La couleur selectionnée
+  const [choosenColor, setChoosenColor] = useState("");
+  // Nom donné à la zone créee
+  const [areaName, setAreaName] = useState("");
+  // Finaliser la création de la zone du plan
+  const [confirm, setConfirm] = useState(false);
 
   // La fonction qui est appelé au clique pour débuter la création d'un RECTANGLE
   const handleMouseDownRect = (event) => {
-    console.log(event)
+    setDrawing(true);
     const { x, y } = event.target.getStage().getPointerPosition();
     const newRectangle = {
       x: x,
       y: y,
       width: 0,
       height: 0,
-      fill: "blue",
+      fill: choosenColor ? choosenColor : "#00000080",
+      areaName: areaName ? areaName : `Zone ${shapes.length}`,
       id: `rect${shapes.length + 1}`,
       shape: "rect",
     };
-    setShapes([...shapes, newRectangle]);
+    setCurrentShape(newRectangle);
   };
 
   // La fonction appelé au mouvement de la souris pendant la création d'un RECTANGLE
   const handleMouseMoveRect = (event) => {
+    if (!drawing) return; // Vérification pour s'assurer qu'un rectangle est en train d'être dessiné
+
     const lastIndex = shapes.length - 1;
-    if (lastIndex < 0) {
-      return;
-    }
     const { x, y } = event.target.getStage().getPointerPosition();
     const updatedRectangle = {
-      ...shapes[lastIndex],
-      width: x - shapes[lastIndex].x,
-      height: y - shapes[lastIndex].y,
+      ...currentShape,
+      width: x - shapes[lastIndex]?.x,
+      height: y - shapes[lastIndex]?.y,
     };
     const newRectangles = [...shapes];
     newRectangles.splice(lastIndex, 1, updatedRectangle);
     setShapes(newRectangles);
   };
 
-  // La fonction qui est appelé au clique pour débuter la création d'un ARC
-  const handleMouseDownArc = (event) => {
-    const { x, y } = event.target.getStage().getPointerPosition();
-    const newArc = {
-      x: x,
-      y: y,
-      outerRadius: 0,
-      innerRadius: 0,
-      angle: 0,
-      fill: "blue",
-      id: `arc${shapes.length + 1}`,
-      shape: "arc",
+  // Fonction lorsque l'utilisateur valide la création de la forme
+  const handleFinish = () => {
+    const last = {
+      ...currentShape,
+      areaName: areaName ? areaName : `Zone ${shapes.length}`,
     };
-    setShapes([...shapes, newArc]);
+    setShapes([...shapes, last]);
+    setCurrentShape(null);
+    setConfirm(false);
+    console.log(last);
   };
+
+  // Fonction lorsque l'utilisateur annule la création de la forme
+  const handleCancel = () => {
+    setDrawing(false);
+    setCurrentShape(null);
+    setConfirm(false);
+  };
+
+  // La fonction qui est appelé au clique pour débuter la création d'un ARC
+  const handleMouseDownArc = (event) => {};
 
   // La fonction appelé au mouvement de la souris pendant la création d'un ARC
-  const handleMouseMoveArc = (event) => {
-    const lastIndex = shapes.length - 1;
-    if (lastIndex < 0) {
-      return;
-    }
-    const { x, y } = event.target.getStage().getPointerPosition();
-    const distanceFromCenter = Math.sqrt(
-      Math.pow(x - shapes[lastIndex].x, 2) +
-        Math.pow(y - shapes[lastIndex].y, 2)
-    );
-    const updatedArc = {
-      ...shapes[lastIndex],
-      outerRadius: distanceFromCenter,
-      innerRadius: distanceFromCenter / 2,
-      angle:
-        Math.atan2(y - shapes[lastIndex].y, x - shapes[lastIndex].x) *
-        (180 / Math.PI),
-    };
-    const newArcs = [...shapes];
-    newArcs.splice(lastIndex, 1, updatedArc);
-    shapes(newArcs);
-  };
+  const handleMouseMoveArc = (event) => {};
 
   return (
-    <>
+    <div className={confirm ? "containerCF" : "container"}>
       <h1>Drawing</h1>
       <p> Choisissez une forme</p>
       <div>
@@ -142,6 +107,14 @@ export default function App() {
         >
           <Icon icon="material-symbols:line-end" />
         </span>
+        <span>
+          <input
+            onChange={(e) => {
+              setChoosenColor(e.target.value);
+            }}
+            type="color"
+          />
+        </span>
       </div>
       <p
         onClick={() => {
@@ -152,20 +125,48 @@ export default function App() {
       </p>
       <Stage
         style={{ backgroundColor: "lightgray", margin: "2em" }}
-        width={500}
-        height={500}
+        width={window.innerWidth}
+        height={window.innerHeight}
         mouse
         onMouseDown={(e) => {
-          // drawFunctions.handleMouseDown();
+          // eslint-disable-next-line no-unused-expressions
+          choosenShape === "square" ? handleMouseDownRect(e) : null;
         }}
         onMousemove={(e) => {
-          console.log(drawFunctions);
-          // drawFunctions.handleMouseMove();
+          // eslint-disable-next-line no-unused-expressions
+          choosenShape === "square" ? handleMouseMoveRect(e) : null;
         }}
         // FONCTION QUI VA PROPOSER DE RENSEIGNER LES INFOS UNE FOIS LA FORME CREEE
-        // onMouseup={handleMouseUp}
+        onMouseup={(e) => {
+          setDrawing(false);
+          setConfirm(true);
+        }}
       >
-        <Layer>
+        <Layer style={{ backgroundColor: "red" }}>
+          {shapes.map((shape) => {
+            if (shape.shape === "rect") {
+              return (
+                <React.Fragment key={shape.id}>
+                  <Rect
+                    key={shape.id}
+                    x={shape.x}
+                    y={shape.y}
+                    width={shape.width}
+                    height={shape.height}
+                    fill={shape.fill}
+                  />
+                  <Text
+                    x={shape.x}
+                    y={shape.y - 20}
+                    text={shape.areaName}
+                    fontSize={16}
+                  />
+                </React.Fragment>
+              );
+            } else {
+              return null;
+            }
+          })}
           {/* <Rect
             x={20}
             y={50}
@@ -195,6 +196,33 @@ export default function App() {
           /> */}
         </Layer>
       </Stage>
-    </>
+      {confirm ? (
+        <div className="confirm">
+          <form>
+            <label for="name">Nommez votre zone</label>
+            <input
+              onChange={(e) => {
+                setAreaName(e.target.value);
+              }}
+              type="text"
+            />
+            <span
+              onClick={() => {
+                handleFinish();
+              }}
+            >
+              Créer la forme
+            </span>
+          </form>
+          <span
+            onClick={() => {
+              handleCancel();
+            }}
+          >
+            Annuler
+          </span>
+        </div>
+      ) : null}
+    </div>
   );
 }
