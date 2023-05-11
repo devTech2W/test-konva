@@ -1,7 +1,8 @@
-import React, { useState, useRef } from "react";
+// eslint-disable
+import React, { useState, useRef, useEffect } from "react";
 import "./App.css";
 import { Icon } from "@iconify/react";
-import { Stage, Layer, Rect, Arc, Text, Circle } from "react-konva";
+import { Stage, Layer, Rect, Arc, Text, Circle, Line } from "react-konva";
 
 export default function App() {
   // Tableau contenant toutes les formes du plan
@@ -14,9 +15,34 @@ export default function App() {
   const [currentShape, setCurrentShape] = useState(null);
   // La forme que l'utilisateur veut dessiner
   const [choosenShape, setChoosenShape] = useState("square");
+  // La fonction appelé lors du dessin selon la forme selectionnée
+  const [drawFunctions, setDrawFunctions] = useState([
+    { handleMouseDown: null },
+    { handleMouseMove: null },
+  ]);
+
+  // Initialisations au chargement de la page
+  // useEffect(() => {
+  //   setDrawFunctions([
+  //     { handleMouseDown: handleMouseDownRect() },
+  //     { handleMouseMove: handleMouseMoveRect() },
+  //   ]);
+  // }, []);
+
+  // Assigner une fonction de création de forme selon la forme selectionnée
+  useEffect(() => {
+    // eslint-disable-next-line no-unused-expressions
+    choosenShape === "square"
+      ? setDrawFunctions([
+          { handleMouseDown: handleMouseDownRect() },
+          { handleMouseMove: handleMouseMoveRect() },
+        ])
+      : null;
+  }, [choosenShape]);
 
   // La fonction qui est appelé au clique pour débuter la création d'un RECTANGLE
   const handleMouseDownRect = (event) => {
+    console.log(event)
     const { x, y } = event.target.getStage().getPointerPosition();
     const newRectangle = {
       x: x,
@@ -48,7 +74,7 @@ export default function App() {
   };
 
   // La fonction qui est appelé au clique pour débuter la création d'un ARC
-  const handleMouseDown = (event) => {
+  const handleMouseDownArc = (event) => {
     const { x, y } = event.target.getStage().getPointerPosition();
     const newArc = {
       x: x,
@@ -64,7 +90,7 @@ export default function App() {
   };
 
   // La fonction appelé au mouvement de la souris pendant la création d'un ARC
-  const handleMouseMove = (event) => {
+  const handleMouseMoveArc = (event) => {
     const lastIndex = shapes.length - 1;
     if (lastIndex < 0) {
       return;
@@ -108,21 +134,67 @@ export default function App() {
         >
           <Icon icon="vaadin:spinner-arc" />
         </span>
+        <span
+          className={choosenShape === "line" ? "selected" : null}
+          onClick={() => {
+            setChoosenShape("line");
+          }}
+        >
+          <Icon icon="material-symbols:line-end" />
+        </span>
       </div>
+      <p
+        onClick={() => {
+          console.log(shapes);
+        }}
+      >
+        test
+      </p>
       <Stage
         style={{ backgroundColor: "lightgray", margin: "2em" }}
         width={500}
         height={500}
+        mouse
+        onMouseDown={(e) => {
+          // drawFunctions.handleMouseDown();
+        }}
+        onMousemove={(e) => {
+          console.log(drawFunctions);
+          // drawFunctions.handleMouseMove();
+        }}
+        // FONCTION QUI VA PROPOSER DE RENSEIGNER LES INFOS UNE FOIS LA FORME CREEE
+        // onMouseup={handleMouseUp}
       >
-        {/* {choosenShape === "rect" ?
-        // CODE CREATION RECTANGLE
-      : 
-      // CODE CREATION ANGLE
-      } */}
+        <Layer>
+          {/* <Rect
+            x={20}
+            y={50}
+            width={100}
+            height={100}
+            fill="red"
+            shadowBlur={10}
+          />
+          <Line
+          x={20}
+          y={200}
+          points={[0, 0, 100, 0, 100, 100]}
+          tension={0.5}
+          closed
+          stroke="black"
+          fillLinearGradientStartPoint={{ x: -50, y: -50 }}
+          fillLinearGradientEndPoint={{ x: 50, y: 50 }}
+          fillLinearGradientColorStops={[0, 'red', 1, 'yellow']}
+        />
+          <Rect
+            x={20}
+            y={270}
+            width={100}
+            height={100}
+            fill="green"
+            shadowBlur={10}
+          /> */}
+        </Layer>
       </Stage>
     </>
   );
 }
-
-
-
