@@ -30,7 +30,6 @@ export default function App() {
       width: 0,
       height: 0,
       fill: choosenColor ? choosenColor : "#00000080",
-      areaName: areaName ? areaName : `Zone ${shapes.length}`,
       id: `rect${shapes.length + 1}`,
       shape: "rect",
     };
@@ -55,21 +54,20 @@ export default function App() {
 
   // Fonction lorsque l'utilisateur valide la création de la forme
   const handleFinish = () => {
-    const last = {
-      ...currentShape,
-      areaName: areaName ? areaName : `Zone ${shapes.length}`,
-    };
-    setShapes([...shapes, last]);
+    setShapes([...shapes, currentShape]);
     setCurrentShape(null);
     setConfirm(false);
-    console.log(last);
   };
 
   // Fonction lorsque l'utilisateur annule la création de la forme
   const handleCancel = () => {
+    setAreaName("");
+    // eslint-disable-next-line no-unused-expressions
+    shapes.length === 1 || shapes.length === 0 ? setShapes([]) : null;
     setDrawing(false);
     setCurrentShape(null);
     setConfirm(false);
+    console.log(shapes);
   };
 
   // La fonction qui est appelé au clique pour débuter la création d'un ARC
@@ -110,7 +108,7 @@ export default function App() {
         <span>
           <input
             onChange={(e) => {
-              setChoosenColor(e.target.value);
+              setChoosenColor(`${e.target.value}80`);
             }}
             type="color"
           />
@@ -143,7 +141,7 @@ export default function App() {
         }}
       >
         <Layer style={{ backgroundColor: "red" }}>
-          {shapes.map((shape) => {
+          {shapes?.map((shape) => {
             if (shape.shape === "rect") {
               return (
                 <React.Fragment key={shape.id}>
@@ -158,7 +156,7 @@ export default function App() {
                   <Text
                     x={shape.x}
                     y={shape.y - 20}
-                    text={shape.areaName}
+                    text={shape.name}
                     fontSize={16}
                   />
                 </React.Fragment>
@@ -199,13 +197,13 @@ export default function App() {
       {confirm ? (
         <div className="confirm">
           <form>
-            <label for="name">Nommez votre zone</label>
+            {/* <label for="name">Nommez votre zone</label>
             <input
               onChange={(e) => {
                 setAreaName(e.target.value);
               }}
               type="text"
-            />
+            /> */}
             <span
               onClick={() => {
                 handleFinish();
