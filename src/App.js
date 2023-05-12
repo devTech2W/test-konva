@@ -11,6 +11,7 @@ import {
   Circle,
   Line,
   Image,
+  RegularPolygon,
 } from "react-konva";
 
 export default function App() {
@@ -33,6 +34,11 @@ export default function App() {
   const [confirm, setConfirm] = useState(false);
   // Les points placés pour la création par points
   const [points, setPoints] = useState([]);
+  const [isClosed, setIsClosed] = useState(false);
+
+  useEffect(() => {
+    alert(isClosed);
+  }, [isClosed]);
 
   // Stocker le plan dans "plan"
   function handlePlanUpload(event) {
@@ -58,9 +64,19 @@ export default function App() {
   }, [plan]);
 
   // Fonction pour dessiner par point
-
   function handleCanvasClick(event) {
     const point = { x: event.evt.offsetX, y: event.evt.offsetY };
+
+    // Check if the point clicked is close enough to the first point
+    const distanceToFirstPoint = Math.sqrt(
+      Math.pow(points[0]?.x - point.x, 2) + Math.pow(points[0]?.y - point.y, 2)
+    );
+    if (distanceToFirstPoint < 15 && points.length > 1) {
+      setIsClosed(true);
+      setPoints([...points, points[0]]); // Add the first point to close the shape
+      return;
+    }
+
     setPoints([...points, point]);
   }
 
@@ -94,6 +110,10 @@ export default function App() {
     const newRectangles = [...shapes];
     newRectangles.splice(lastIndex, 1, updatedRectangle);
     setShapes(newRectangles);
+
+    if (isClosed && points.length > 1) {
+      setPoints([...points, points[0]]); // Add the first point to close the shape
+    }
   };
 
   // Fonction lorsque l'utilisateur valide la création de la forme
@@ -234,25 +254,24 @@ export default function App() {
             }
           })}
           {points.map((point, index) => {
-            if (index === points.length - 1) {
+            if (index === points.length - 1 && !isClosed) {
               return (
                 <Circle
                   key={index}
                   x={point.x}
                   y={point.y}
                   radius={5}
-                  fill="black"
+                  fill="red"
                 />
               );
             } else {
-              const nextPoint = points[index + 1];
+              const nextPoint = points[index + 1] || points[0];
               return (
                 <Line
-                  fill={choosenColor}
                   key={index}
                   points={[point.x, point.y, nextPoint.x, nextPoint.y]}
-                  stroke="black"
-                  strokeWidth={2}
+                  stroke="red"
+                  strokeWidth={5}
                   lineCap="round"
                   lineJoin="round"
                 />
