@@ -2,27 +2,69 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./App.css";
 import { Icon } from "@iconify/react";
-import { Stage, Layer, Rect, Arc, Text, Circle, Line } from "react-konva";
+import {
+  Stage,
+  Layer,
+  Rect,
+  Arc,
+  Text,
+  Circle,
+  Line,
+  Image,
+} from "react-konva";
 
 export default function App() {
+  // Uploader le plan
+  const [plan, setPlan] = useState(null);
+  const imageRef = useRef(null);
   // Tableau contenant toutes les formes du plan
   const [shapes, setShapes] = useState([]);
   // Passer de l'état de dessiner à non
   const [drawing, setDrawing] = useState(false);
   // La dernière forme créee
   const [currentShape, setCurrentShape] = useState(null);
-  // La forme que l'utilisateur veut dessiner
+  // La forme que l'utilisateur veut dessiner RECTANLGE / ARC / LIGNE
   const [choosenShape, setChoosenShape] = useState("square");
   // La couleur selectionnée
   const [choosenColor, setChoosenColor] = useState("");
   // Nom donné à la zone créee
   const [areaName, setAreaName] = useState("");
-  // Finaliser la création de la zone du plan
+  // Confirmer la création de la zone du plan
   const [confirm, setConfirm] = useState(false);
   // Les points placés pour la création par points
   const [points, setPoints] = useState([]);
 
-  // La fonction qui est appelé au clique pour débuter la création d'un RECTANGLE
+  // Stocker le plan dans "plan"
+  function handlePlanUpload(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      setPlan(e.target.result);
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  useEffect(() => {
+    if (plan) {
+      const image = new window.Image();
+      image.onload = () => {
+        imageRef.current.image(image);
+        imageRef.current.getLayer().batchDraw();
+      };
+      image.src = plan;
+    }
+  }, [plan]);
+
+  // Fonction pour dessiner par point
+
+  function handleCanvasClick(event) {
+    const point = { x: event.evt.offsetX, y: event.evt.offsetY };
+    setPoints([...points, point]);
+  }
+
+  // La fonction  pour débuter la création d'un RECTANGLE
   const handleMouseDownRect = (event) => {
     setDrawing(true);
     const { x, y } = event.target.getStage().getPointerPosition();
@@ -74,6 +116,8 @@ export default function App() {
 
   return (
     <div className={confirm ? "containerCF" : "container"}>
+      <h3> importez votre plan</h3>
+      <input type="file" onChange={handlePlanUpload} />
       <h1>Drawing</h1>
       <p> Choisissez une forme</p>
       <div>
@@ -121,7 +165,6 @@ export default function App() {
         style={{ backgroundColor: "lightgray", margin: "2em" }}
         width={window.innerWidth}
         height={window.innerHeight}
-        mouse
         onMouseDown={(e) => {
           // eslint-disable-next-line no-unused-expressions
           choosenShape === "square"
@@ -143,8 +186,10 @@ export default function App() {
           setDrawing(false);
           // setConfirm(true);
         }}
+        onClick={handleCanvasClick}
       >
         <Layer>
+          {<Image ref={imageRef} />}
           {shapes?.map((shape) => {
             if (shape.shape === "rect") {
               return (
@@ -185,6 +230,32 @@ export default function App() {
                     fontSize={16}
                   />
                 </React.Fragment>
+              );
+            }
+          })}
+          {points.map((point, index) => {
+            if (index === points.length - 1) {
+              return (
+                <Circle
+                  key={index}
+                  x={point.x}
+                  y={point.y}
+                  radius={5}
+                  fill="black"
+                />
+              );
+            } else {
+              const nextPoint = points[index + 1];
+              return (
+                <Line
+                  fill={choosenColor}
+                  key={index}
+                  points={[point.x, point.y, nextPoint.x, nextPoint.y]}
+                  stroke="black"
+                  strokeWidth={2}
+                  lineCap="round"
+                  lineJoin="round"
+                />
               );
             }
           })}
