@@ -8,7 +8,7 @@ span {
   padding: 5px;
 }
 
-.container{
+.container {
   min-height: 100%;
   padding: 0px;
 }
@@ -24,4 +24,9 @@ span {
   position: absolute;
   top: 40vh;
   width: 60vw;
+}
+
+.active {
+  background-color: green;
+  color: aliceblue;
 }

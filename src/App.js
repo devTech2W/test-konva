@@ -1,17 +1,52 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { Stage, Layer, Line, Text, Group, Image, Rect } from "react-konva";
+import {
+  Stage,
+  Layer,
+  Line,
+  Text,
+  Group,
+  Image,
+  Rect,
+  Circle,
+  Shape,
+} from "react-konva";
 import "./App.css";
 
 export default function App() {
+  const [isDrawing, setIsDrawing] = useState(false);
   const [plan, setPlan] = useState(null);
   const imageRef = useRef(null);
-  const [lines, setLines] = useState([]);
-  const [isDrawing, setIsDrawing] = useState(true);
-  const [selectedShape, setSelectedShape] = useState(null);
-  const [lineLengths, setLineLengths] = useState([]);
-  const [zoom, setZoom] = useState(1);
-  const [area, setArea] = useState("");
+  const [shapeList, setShapeList] = useState([]);
+  const [points, setPoints] = useState([]);
+  const [ptd, setPtd] = useState([])
+  const [shape, setShape] = useState({
+    shape_id: `shape_${shapeList.length}`,
+    points: points,
+    color: "red",
+    name: "zone",
+  });
+
+  useEffect(() => {
+    setShape({
+      ...shape,
+      points: points,
+    });
+  }, [points]);
+
+  const handleCloseShape = () => {
+    if (points.length >= 2) {
+      setPoints([...points, points[0], points[1]]);
+    }
+  };
+
+  const handleColorChange = (newColor) => {
+    setShape({ ...shape, color: newColor });
+  };
+
+  const handleNameChange = (newName) => {
+    setShape({ ...shape, name: newName });
+  };
 
   const handlePlanUpload = (e) => {
     const file = e.target.files[0];
@@ -35,70 +70,34 @@ export default function App() {
     }
   }, [plan]);
 
-  const handleClick = (e) => {
-    if (!isDrawing) {
-      return;
-    }
-    if (!lines.length) {
-      setLines([{ points: [] }]);
-    }
+  const addPoint = (e) => {
+    if (isDrawing) {
+      const stage = e.target.getStage();
+      const point = stage.getPointerPosition();
+      if (points.length > 0) {
+        const avantDernier = points[points.length - 2];
+        const dernier = points[points.length - 1];
+        points.pop();
+        points.pop();
+        const newPoints = [...points, avantDernier, dernier, point.x, point.y];
+        setPoints(newPoints);
+      } else {
+        setPoints([point.x, point.y]);
+      }
+    } else return;
+  };
 
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
-    const lastLine = lines[lines.length - 1];
-    let lastX = 0;
-    let lastY = 0;
-    let lineLength = 0;
-    if (lastLine && lastLine.points.length > 0) {
-      lastX = lastLine.points[lastLine.points.length - 2];
-      lastY = lastLine.points[lastLine.points.length - 1];
-      lineLength = Math.sqrt(
-        Math.pow(point.x - lastX, 2) + Math.pow(point.y - lastY, 2)
-      );
-    }
-    if (!lastLine) {
-      setLines([...lines, { points: [point.x, point.y] }]);
+  const handleShapeState = () => {
+    if (isDrawing) {
+      setIsDrawing(false);
+      if (points.length > 1 && points.length % 2 === 0) {
+        // Ajout de vérifications
+        setShapeList([...shapeList, shape]);
+      }
     } else {
-      lastLine.points = lastLine.points.concat([point.x, point.y]);
-      setLineLengths([...lineLengths, lineLength]);
-      setLines(lines.concat());
+      setIsDrawing(true);
+      setPoints([]); // Réinitialiser le tableau de points pour le nouveau dessin
     }
-  };
-
-  const handleNewShape = () => {
-    setIsDrawing(true);
-    setLines([...lines, { points: [] }]);
-  };
-
-  const calculateArea = (points) => {
-    let area = 0;
-    let j = points.length - 2;
-    for (let i = 0; i < points.length; i += 2) {
-      area += (points[j] + points[i]) * (points[j + 1] - points[i + 1]);
-      j = i;
-    }
-
-    return Math.abs(area / 2);
-  };
-
-  const handleSelectShape = (shapeIndex) => {
-    setSelectedShape(shapeIndex);
-    const selectedShapePoints = lines[shapeIndex].points;
-    const area = calculateArea(selectedShapePoints);
-    console.log(lines[shapeIndex]);
-  };
-
-  const handleUndoClick = () => {
-    if (lines.length > 0) {
-      const lastLine = lines[lines.length - 1];
-      const newPoints = lastLine.points.slice(0, -2);
-      lastLine.points = newPoints;
-      setLines([...lines]);
-    }
-  };
-  const clearShape = () => {
-    setLines([]);
-    setLines([{ points: [] }]);
   };
 
   return (
@@ -109,62 +108,87 @@ export default function App() {
           handlePlanUpload(e);
         }}
       />
-      <button width={50} height={50} onClick={handleNewShape}>
-        Créer la forme
+      <button
+        className={isDrawing ? "active" : "create"}
+        onClick={() => {
+          handleShapeState();
+        }}
+        width={50}
+        height={50}
+      >
+        {isDrawing ? "Terminer" : "Créer une zone"}
       </button>
-      <button width={50} height={50} onClick={handleUndoClick}>
+      <button width={50} height={50}>
         Revenir en arrière
       </button>
-      <button width={50} height={50} onClick={clearShape}>
+      <button width={50} height={50}>
         Effacer le plan
       </button>
 
       <Stage
         width={window.innerWidth}
         height={window.innerHeight}
-        onClick={handleClick}
+        // onClick={() => {
+        //   handleClick();
+        // }}
         className="Stage-Decoration"
+        onMouseDown={(e) => {
+          addPoint(e);
+        }}
       >
         <Layer>
           {<Image ref={imageRef} />}
-          <Rect width={1000} height={1000} fill="#00000080" />
-          <Group scaleX={zoom} scaleY={zoom}>
-            {lines.map((line, i) => {
-              const length = Math.sqrt(
-                Math.pow(
-                  line.points[line.points.length - 2] -
-                    line.points[line.points.length - 4],
-                  2
-                ) +
-                  Math.pow(
-                    line.points[line.points.length - 1] -
-                      line.points[line.points.length - 3],
-                    2
-                  )
-              );
+          <Rect
+            style={{ padding: "2em" }}
+            width={1000}
+            height={1000}
+            fill="#00000080"
+          />
+
+          <Group>
+            <Text
+              text={shape.name}
+              x={points[0] + (points[2] - points[0]) / 2}
+              y={points[1] - 20}
+              fontSize={15}
+            />
+
+            {shapeList?.map((shape) => {
               return (
-                <>
-                  <Line
-                    key={i}
-                    points={line.points}
-                    stroke="red"
-                    strokeWidth={4}
-                    closed="true"
-                    draggable="false"
-                    lineCap="square"
-                    lineJoin="bevel"
-                    shadowOffsetX={2}
-                    shadowOffsetY={2}
-                    shadowOpacity={0.5}
-                    fill={i === selectedShape ? "lightpink" : "transparent"}
-                    onDblClick={() => handleSelectShape(i)}
+                (
+                  <Shape
+                    sceneFunc={(context, shape) => {
+                      context.beginPath();
+                      context.moveTo(points[0], points[1]);
+                      points.forEach((point, i) => {
+                        if (i % 2 === 0 && i > 1) {
+                          context.lineTo(points[i], points[i + 1]);
+                        }
+                      });
+                      context.closePath();
+                      context.fillStrokeShape(shape);
+                    }}
+                    fill="lightblue"
+                    onClick={handleCloseShape}
                   />
-                </>
+                )
               );
             })}
           </Group>
         </Layer>
       </Stage>
+      <input
+        type="color"
+        placeholder="Enter color"
+        onChange={(e) => handleColorChange(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Enter name"
+        onChange={(e) => handleNameChange(e.target.value)}
+      />
+      <p>Shape color: {shape.color}</p>
+      <p>Shape name: {shape.name}</p>
     </>
   );
 }
