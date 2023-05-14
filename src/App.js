@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { Stage, Layer, Line, Text, Group, Image } from "react-konva";
+import { Stage, Layer, Line, Text, Group, Image, Rect } from "react-konva";
 import "./App.css";
 
 export default function App() {
@@ -63,19 +63,11 @@ export default function App() {
       setLineLengths([...lineLengths, lineLength]);
       setLines(lines.concat());
     }
-    console.log("Line Length: ", lineLength);
   };
 
   const handleNewShape = () => {
     setIsDrawing(true);
     setLines([...lines, { points: [] }]);
-  };
-
-  const handleStopDrawing = () => {
-    setIsDrawing(false);
-  };
-  const handleStartDrawing = () => {
-    setIsDrawing(true);
   };
 
   const calculateArea = (points) => {
@@ -93,8 +85,9 @@ export default function App() {
     setSelectedShape(shapeIndex);
     const selectedShapePoints = lines[shapeIndex].points;
     const area = calculateArea(selectedShapePoints);
-    console.log(`Selected shape area: ${area.toFixed(2)}`);
+    console.log(lines[shapeIndex]);
   };
+
   const handleUndoClick = () => {
     if (lines.length > 0) {
       const lastLine = lines[lines.length - 1];
@@ -107,23 +100,6 @@ export default function App() {
     setLines([]);
     setLines([{ points: [] }]);
   };
-  const handleZoomInClick = () => {
-    setZoom(zoom * 1.02);
-  };
-  const handleZoomOutClick = () => {
-    if (zoom > 1) {
-      setZoom(zoom * 0.98);
-    }
-  };
-
-  const handleCalculateArea = () => {
-    if (selectedShape === null) {
-      return;
-    }
-    const selectedShapePoints = lines[selectedShape].points;
-    const area = calculateArea(selectedShapePoints);
-    setArea(`Selected shape area: ${area.toFixed(2)} square meters`);
-  };
 
   return (
     <>
@@ -134,28 +110,13 @@ export default function App() {
         }}
       />
       <button width={50} height={50} onClick={handleNewShape}>
-        New Shape
-      </button>
-      <button width={50} height={50} onClick={handleStopDrawing}>
-        Stop Drawing
-      </button>
-      <button width={50} height={50} onClick={handleStartDrawing}>
-        Start Drawing
+        Créer la forme
       </button>
       <button width={50} height={50} onClick={handleUndoClick}>
-        Undo
+        Revenir en arrière
       </button>
       <button width={50} height={50} onClick={clearShape}>
-        Clear Shapes
-      </button>
-      <button width={50} height={50} onClick={handleZoomInClick}>
-        Zoom In
-      </button>
-      <button width={50} height={50} onClick={handleZoomOutClick}>
-        Zoom Out
-      </button>
-      <button width={50} height={50} onClick={handleCalculateArea}>
-        Calculate Area
+        Effacer le plan
       </button>
 
       <Stage
@@ -166,6 +127,7 @@ export default function App() {
       >
         <Layer>
           {<Image ref={imageRef} />}
+          <Rect width={1000} height={1000} fill="#00000080" />
           <Group scaleX={zoom} scaleY={zoom}>
             {lines.map((line, i) => {
               const length = Math.sqrt(
@@ -185,10 +147,9 @@ export default function App() {
                   <Line
                     key={i}
                     points={line.points}
-                    stroke="black"
+                    stroke="red"
                     strokeWidth={4}
                     closed="true"
-                    fillPatternRepeat
                     draggable="false"
                     lineCap="square"
                     lineJoin="bevel"
@@ -197,13 +158,6 @@ export default function App() {
                     shadowOpacity={0.5}
                     fill={i === selectedShape ? "lightpink" : "transparent"}
                     onDblClick={() => handleSelectShape(i)}
-                  />
-                  <Text
-                    x={line.points[line.points.length - 2]}
-                    y={line.points[line.points.length - 1]}
-                    text={`Shape  ${i + 1}: ${length.toFixed(2)}`}
-                    fontSize={15}
-                    fill="yellow"
                   />
                 </>
               );
