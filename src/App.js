@@ -19,12 +19,12 @@ export default function App() {
   const imageRef = useRef(null);
   const [shapeList, setShapeList] = useState([]);
   const [points, setPoints] = useState([]);
-  const [ptd, setPtd] = useState([])
+  const [ptd, setPtd] = useState([]);
   const [shape, setShape] = useState({
     shape_id: `shape_${shapeList.length}`,
     points: points,
     color: "red",
-    name: "zone",
+    name: `zone ${shapeList.length}`,
   });
 
   useEffect(() => {
@@ -33,6 +33,10 @@ export default function App() {
       points: points,
     });
   }, [points]);
+
+  useEffect(() => {
+    console.log(shapeList);
+  }, [shapeList]);
 
   const handleCloseShape = () => {
     if (points.length >= 2) {
@@ -89,13 +93,22 @@ export default function App() {
 
   const handleShapeState = () => {
     if (isDrawing) {
-      setIsDrawing(false);
       if (points.length > 1 && points.length % 2 === 0) {
-        // Ajout de vérifications
         setShapeList([...shapeList, shape]);
+        setShape({});
+        setPoints([]);
       }
+      setShape({});
+      setIsDrawing(false);
+      setPoints([]);
     } else {
       setIsDrawing(true);
+      setShape({
+        shape_id: `shape_${shapeList.length}`,
+        points: points,
+        color: "red",
+        name: `zone ${shapeList.length}`,
+      });
       setPoints([]); // Réinitialiser le tableau de points pour le nouveau dessin
     }
   };
@@ -154,24 +167,23 @@ export default function App() {
             />
 
             {shapeList?.map((shape) => {
+              const pts = shape.points;
               return (
-                (
-                  <Shape
-                    sceneFunc={(context, shape) => {
-                      context.beginPath();
-                      context.moveTo(points[0], points[1]);
-                      points.forEach((point, i) => {
-                        if (i % 2 === 0 && i > 1) {
-                          context.lineTo(points[i], points[i + 1]);
-                        }
-                      });
-                      context.closePath();
-                      context.fillStrokeShape(shape);
-                    }}
-                    fill="lightblue"
-                    onClick={handleCloseShape}
-                  />
-                )
+                <Shape
+                  sceneFunc={(context, shape) => {
+                    context.beginPath();
+                    context.moveTo(pts[0], pts[1]);
+                    pts.forEach((point, i) => {
+                      if (i % 2 === 0 && i > 1) {
+                        context.lineTo(pts[i], pts[i + 1]);
+                      }
+                    });
+                    context.closePath();
+                    context.fillStrokeShape(shape);
+                  }}
+                  fill={shape.color}
+                  onClick={handleCloseShape}
+                />
               );
             })}
           </Group>
