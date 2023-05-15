@@ -19,12 +19,11 @@ export default function App() {
   const imageRef = useRef(null);
   const [shapeList, setShapeList] = useState([]);
   const [points, setPoints] = useState([]);
-  const [ptd, setPtd] = useState([]);
   const [shape, setShape] = useState({
     shape_id: `shape_${shapeList.length}`,
     points: points,
     color: "red",
-    name: `zone ${shapeList.length}`,
+    name: `zone ${shapeList.length + 1}`,
   });
 
   useEffect(() => {
@@ -33,10 +32,6 @@ export default function App() {
       points: points,
     });
   }, [points]);
-
-  useEffect(() => {
-    console.log(shapeList);
-  }, [shapeList]);
 
   const handleCloseShape = () => {
     if (points.length >= 2) {
@@ -91,6 +86,19 @@ export default function App() {
     } else return;
   };
 
+  const handleUndo = async () => {
+    if (points.length > 0) {
+      let currentPoints = [];
+      for (let i = 0; i !== points.length - 2; i++) {
+        console.log(points[i]);
+        // eslint-disable-next-line no-unused-expressions
+        await currentPoints.push(points[i]);
+      }
+      setPoints(currentPoints);
+    } else {
+    }
+  };
+
   const handleShapeState = () => {
     if (isDrawing) {
       if (points.length > 1 && points.length % 2 === 0) {
@@ -107,7 +115,7 @@ export default function App() {
         shape_id: `shape_${shapeList.length}`,
         points: points,
         color: "red",
-        name: `zone ${shapeList.length}`,
+        name: `zone ${shapeList.length + 1}`,
       });
       setPoints([]); // Réinitialiser le tableau de points pour le nouveau dessin
     }
@@ -117,10 +125,12 @@ export default function App() {
     <>
       <input
         type="file"
+        accept="*"
         onChange={(e) => {
           handlePlanUpload(e);
         }}
       />
+
       <button
         className={isDrawing ? "active" : "create"}
         onClick={() => {
@@ -131,7 +141,13 @@ export default function App() {
       >
         {isDrawing ? "Terminer" : "Créer une zone"}
       </button>
-      <button width={50} height={50}>
+      <button
+        onClick={() => {
+          handleUndo();
+        }}
+        width={50}
+        height={50}
+      >
         Revenir en arrière
       </button>
       <button width={50} height={50}>
@@ -186,7 +202,64 @@ export default function App() {
                 />
               );
             })}
+            {points.length > 0 ? (
+              <Shape
+                sceneFunc={(context, shape) => {
+                  context.beginPath();
+                  context.moveTo(points[0], points[1]);
+                  points.forEach((point, i) => {
+                    if (i % 2 === 0 && i > 1) {
+                      context.lineTo(points[i], points[i + 1]);
+                    }
+                  });
+                  context.closePath();
+                  context.fillStrokeShape(shape);
+                }}
+                fill={shape.color}
+                onClick={handleCloseShape}
+              />
+            ) : null}
           </Group>
+          {shapeList?.map((shape) => {
+            const pts = shape.points;
+            return (
+              <>
+                {pts.map((point, index) => {
+                  if (index % 2 === 0) {
+                    const x = pts[index];
+                    const y = pts[index + 1];
+                    return (
+                      <Circle
+                        draggable
+                        key={`circle_${index}`}
+                        x={x}
+                        y={y}
+                        radius={5}
+                        fill="black"
+                      />
+                    );
+                  }
+                  return null;
+                })}
+              </>
+            );
+          })}
+          {points.map((point, index) => {
+            if (index % 2 === 0) {
+              const x = points[index];
+              const y = points[index + 1];
+              return (
+                <Circle
+                  key={`circle_${index}`}
+                  x={x}
+                  y={y}
+                  radius={5}
+                  fill="black"
+                />
+              );
+            }
+            return null;
+          })}
         </Layer>
       </Stage>
       <input
