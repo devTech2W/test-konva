@@ -30,3 +30,12 @@ span {
   background-color: green;
   color: aliceblue;
 }
+
+.container {
+  position: relative;
+}
+
+.confirm {
+  position: fixed;
+  top: 20;
+}

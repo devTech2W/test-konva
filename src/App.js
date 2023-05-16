@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-
+/* eslint-disable */
 import {
   Stage,
   Layer,
@@ -18,6 +18,7 @@ export default function App() {
   const [plan, setPlan] = useState(null);
   const imageRef = useRef(null);
   const [shapeList, setShapeList] = useState([]);
+  const [confirm, setConfirm] = useState(false);
   const [points, setPoints] = useState([]);
   const [shape, setShape] = useState({
     shape_id: `shape_${shapeList.length}`,
@@ -25,6 +26,8 @@ export default function App() {
     color: "red",
     name: `zone ${shapeList.length + 1}`,
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [shapeToEdit, setShapeToEdit] = useState(null);
 
   useEffect(() => {
     setShape({
@@ -32,6 +35,10 @@ export default function App() {
       points: points,
     });
   }, [points]);
+
+  useEffect(() => {
+    points.length === 0 ? setConfirm(false) : null;
+  }, [points, confirm]);
 
   const handleCloseShape = () => {
     if (points.length >= 2) {
@@ -56,6 +63,12 @@ export default function App() {
     };
 
     reader.readAsDataURL(file);
+  };
+
+  const handleDeleteImage = () => {
+    if (imageRef.current) {
+      imageRef.current.remove();
+    }
   };
 
   useEffect(() => {
@@ -90,7 +103,6 @@ export default function App() {
     if (points.length > 0) {
       let currentPoints = [];
       for (let i = 0; i !== points.length - 2; i++) {
-        console.log(points[i]);
         // eslint-disable-next-line no-unused-expressions
         await currentPoints.push(points[i]);
       }
@@ -99,7 +111,26 @@ export default function App() {
     }
   };
 
+  const handleClear = () => {
+    setShapeList([]);
+    setShape({});
+    setPoints([]);
+    setIsDrawing(false);
+    setConfirm(false);
+  };
+
   const handleShapeState = () => {
+    setIsDrawing(true);
+    setShape({
+      shape_id: `shape_${shapeList.length}`,
+      points: points,
+      color: "#000000",
+      name: `zone ${shapeList.length + 1}`,
+    });
+    setPoints([]);
+  };
+
+  const handleFinish = () => {
     if (isDrawing) {
       if (points.length > 1 && points.length % 2 === 0) {
         setShapeList([...shapeList, shape]);
@@ -109,20 +140,28 @@ export default function App() {
       setShape({});
       setIsDrawing(false);
       setPoints([]);
+      setConfirm(false);
     } else {
-      setIsDrawing(true);
-      setShape({
-        shape_id: `shape_${shapeList.length}`,
-        points: points,
-        color: "red",
-        name: `zone ${shapeList.length + 1}`,
-      });
-      setPoints([]); // Réinitialiser le tableau de points pour le nouveau dessin
+      null;
     }
   };
 
+  const handleEditShape = () => {};
+
+  const handleDeleteShape = () => {
+    const idToDelete = shapeToEdit.shape_id;
+    const newShapeList = shapeList
+      .map((sha) => {
+        return sha.shape_id !== idToDelete ? sha : null;
+      })
+      .filter(Boolean);
+    setShapeList(newShapeList);
+    setIsEditing(false);
+    setShapeToEdit(null);
+  };
+
   return (
-    <>
+    <div className="container">
       <input
         type="file"
         accept="*"
@@ -130,11 +169,21 @@ export default function App() {
           handlePlanUpload(e);
         }}
       />
+      {plan ? (
+        <button
+          onClick={() => {
+            setPlan(null);
+            handleDeleteImage();
+          }}
+        >
+          Supprimer le plan
+        </button>
+      ) : null}
 
       <button
         className={isDrawing ? "active" : "create"}
         onClick={() => {
-          handleShapeState();
+          isDrawing ? setConfirm(true) : handleShapeState();
         }}
         width={50}
         height={50}
@@ -150,9 +199,20 @@ export default function App() {
       >
         Revenir en arrière
       </button>
-      <button width={50} height={50}>
+      <button
+        onClick={() => {
+          handleClear();
+        }}
+        width={50}
+        height={50}
+      >
         Effacer le plan
       </button>
+      {shapeToEdit !== null ? (
+        <button width={50} height={50}>
+          Modifications terminées
+        </button>
+      ) : null}
 
       <Stage
         width={window.innerWidth}
@@ -162,10 +222,10 @@ export default function App() {
         // }}
         className="Stage-Decoration"
         onMouseDown={(e) => {
-          addPoint(e);
+          confirm ? null : addPoint(e);
         }}
       >
-        <Layer>
+        <Layer style={{ padding: "2em" }}>
           {<Image ref={imageRef} />}
           <Rect
             style={{ padding: "2em" }}
@@ -174,76 +234,82 @@ export default function App() {
             fill="#00000080"
           />
 
-          <Group>
-            <Text
-              text={shape.name}
-              x={points[0] + (points[2] - points[0]) / 2}
-              y={points[1] - 20}
-              fontSize={15}
-            />
-
-            {shapeList?.map((shape) => {
-              const pts = shape.points;
-              return (
-                <Shape
-                  sceneFunc={(context, shape) => {
-                    context.beginPath();
-                    context.moveTo(pts[0], pts[1]);
-                    pts.forEach((point, i) => {
-                      if (i % 2 === 0 && i > 1) {
-                        context.lineTo(pts[i], pts[i + 1]);
-                      }
-                    });
-                    context.closePath();
-                    context.fillStrokeShape(shape);
-                  }}
-                  fill={shape.color}
-                  onClick={handleCloseShape}
-                />
-              );
-            })}
-            {points.length > 0 ? (
-              <Shape
-                sceneFunc={(context, shape) => {
-                  context.beginPath();
-                  context.moveTo(points[0], points[1]);
-                  points.forEach((point, i) => {
-                    if (i % 2 === 0 && i > 1) {
-                      context.lineTo(points[i], points[i + 1]);
-                    }
-                  });
-                  context.closePath();
-                  context.fillStrokeShape(shape);
-                }}
-                fill={shape.color}
-                onClick={handleCloseShape}
-              />
-            ) : null}
-          </Group>
-          {shapeList?.map((shape) => {
-            const pts = shape.points;
-            return (
-              <>
-                {pts.map((point, index) => {
-                  if (index % 2 === 0) {
-                    const x = pts[index];
-                    const y = pts[index + 1];
-                    return (
-                      <Circle
-                        draggable
-                        key={`circle_${index}`}
-                        x={x}
-                        y={y}
-                        radius={5}
-                        fill="black"
-                      />
-                    );
+          {shapeList.length > 0
+            ? shapeList?.map((shape) => {
+                const pts = shape?.points;
+                return (
+                  <Group>
+                    {shape === shapeToEdit
+                      ? pts?.map((point, index) => {
+                          if (index % 2 === 0) {
+                            const x = pts[index];
+                            const y = pts[index + 1];
+                            return (
+                              <Circle
+                                draggable={shapeToEdit === shape}
+                                key={`circle_${index}`}
+                                x={x}
+                                y={y}
+                                radius={2}
+                                fill="yellow"
+                              />
+                            );
+                          }
+                          return null;
+                        })
+                      : null}
+                    <Text
+                      fill={"black"}
+                      text={shape?.name}
+                      x={pts ? pts[0] + 5 : null}
+                      y={pts ? pts[1] - 35 : null}
+                      fontSize={20}
+                      fontFamily="Arial"
+                      padding={10}
+                      fontStyle="bold"
+                      width={200}
+                      height={50}
+                    />
+                    <Shape
+                      sceneFunc={(context, shape) => {
+                        context.beginPath();
+                        context.moveTo(pts[0], pts[1]);
+                        pts.forEach((point, i) => {
+                          if (i % 2 === 0 && i > 1) {
+                            context.lineTo(pts[i], pts[i + 1]);
+                          }
+                        });
+                        context.closePath();
+                        context.fillStrokeShape(shape);
+                      }}
+                      fill={`${shape.color}90`}
+                      onClick={handleCloseShape}
+                      onDblClick={() => {
+                        setShapeToEdit(shape);
+                        setIsEditing(true);
+                      }}
+                    />
+                  </Group>
+                );
+              })
+            : null}
+          {points.length > 0 ? (
+            <Shape
+              sceneFunc={(context, shape) => {
+                context.beginPath();
+                context.moveTo(points[0], points[1]);
+                points.forEach((point, i) => {
+                  if (i % 2 === 0 && i > 1) {
+                    context.lineTo(points[i], points[i + 1]);
                   }
-                  return null;
-                })}
-              </>
-            );
-          })}
+                });
+                context.closePath();
+                context.fillStrokeShape(shape);
+              }}
+              fill={`${shape.color}80`}
+              onClick={handleCloseShape}
+            />
+          ) : null}
           {points.map((point, index) => {
             if (index % 2 === 0) {
               const x = points[index];
@@ -253,8 +319,8 @@ export default function App() {
                   key={`circle_${index}`}
                   x={x}
                   y={y}
-                  radius={5}
-                  fill="black"
+                  radius={2}
+                  fill="yellow"
                 />
               );
             }
@@ -262,18 +328,49 @@ export default function App() {
           })}
         </Layer>
       </Stage>
-      <input
-        type="color"
-        placeholder="Enter color"
-        onChange={(e) => handleColorChange(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Enter name"
-        onChange={(e) => handleNameChange(e.target.value)}
-      />
-      <p>Shape color: {shape.color}</p>
-      <p>Shape name: {shape.name}</p>
-    </>
+      {confirm ? (
+        <div className="confirm">
+          <input
+            type="color"
+            placeholder="Enter color"
+            onChange={(e) => handleColorChange(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Enter name"
+            onChange={(e) => handleNameChange(e.target.value)}
+          />
+          <p>Shape color: {shape.color}</p>
+          <p>Shape name: {shape.name}</p>
+
+          <button
+            onClick={() => {
+              handleFinish();
+            }}
+          >
+            Terminer
+          </button>
+        </div>
+      ) : null}
+      {isEditing ? (
+        <div className="confirm">
+          <button
+            onClick={() => {
+              setIsEditing(false);
+              handleEditShape();
+            }}
+          >
+            Modifier la forme
+          </button>
+          <button
+            onClick={() => {
+              handleDeleteShape(shape);
+            }}
+          >
+            Supprimer la forme
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
