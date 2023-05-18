@@ -14,9 +14,10 @@ import {
 import "./App.css";
 
 export default function App() {
+  const planRef = useRef(null);
+
   const [isDrawing, setIsDrawing] = useState(false);
   const [plan, setPlan] = useState(null);
-  const imageRef = useRef(null);
   const [shapeList, setShapeList] = useState([]);
   const [confirm, setConfirm] = useState(false);
   const [points, setPoints] = useState([]);
@@ -26,8 +27,17 @@ export default function App() {
     color: "red",
     name: `zone ${shapeList.length + 1}`,
   });
+  const [showMessage, setShowMessage] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [shapeToEdit, setShapeToEdit] = useState(null);
+  const [pointsToReplace, setPointsToReplace] = useState({
+    x: null,
+    y: null,
+  });
+  const [newPoints, setNewPoints] = useState({
+    x: null,
+    y: null,
+  });
 
   useEffect(() => {
     setShape({
@@ -55,32 +65,26 @@ export default function App() {
   };
 
   const handlePlanUpload = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      setPlan(e.target.result);
+    const uploadedImage = e.target.files[0];
+    const imageURL = URL.createObjectURL(uploadedImage);
+    const img = new window.Image();
+    img.src = imageURL;
+    img.onload = () => {
+      planRef.current.image(img);
+      planRef.current.getLayer().batchDraw();
     };
-
-    reader.readAsDataURL(file);
   };
 
-  const handleDeleteImage = () => {
-    if (imageRef.current) {
-      imageRef.current.remove();
-    }
-  };
-
-  useEffect(() => {
-    if (plan) {
-      const image = new window.Image();
-      image.onload = () => {
-        imageRef.current.image(image);
-        imageRef.current.getLayer().batchDraw();
-      };
-      image.src = plan;
-    }
-  }, [plan]);
+  // useEffect(() => {
+  //   if (plan) {
+  //     const image = new window.Image();
+  //     image.onload = () => {
+  //       imageRef.current.image(image);
+  //       imageRef.current.getLayer().batchDraw();
+  //     };
+  //     image.src = plan;
+  //   }
+  // }, [plan]);
 
   const addPoint = (e) => {
     if (isDrawing) {
@@ -111,12 +115,37 @@ export default function App() {
     }
   };
 
+  const handleUndoEdit = async () => {
+    if (shapeToEdit?.points.length >= 2) {
+      for (let i = 0; i < 2; i++) {
+        shapeToEdit.points.pop();
+      }
+    } else if (shapeToEdit !== null && shapeToEdit?.points.length <= 4) {
+      // Supprimer shapeToEdit de shapeList
+      const newShapeList = shapeList.filter(
+        (shape) => shape.shape_id !== shapeToEdit.shape_id
+      );
+      setShapeList(newShapeList);
+      setShapeToEdit(null);
+    } else {
+      null;
+    }
+
+    setShape({});
+    setIsDrawing(false);
+    setPoints([]);
+    setConfirm(false);
+  };
+
   const handleClear = () => {
     setShapeList([]);
     setShape({});
     setPoints([]);
     setIsDrawing(false);
     setConfirm(false);
+    setIsEditing(false);
+    setShowMessage(false);
+    setShapeToEdit(null);
   };
 
   const handleShapeState = () => {
@@ -160,6 +189,82 @@ export default function App() {
     setShapeToEdit(null);
   };
 
+  const handleDragMove = (e, x, y) => {
+    setPointsToReplace({
+      x: x,
+      y: y,
+    });
+    let newShape = shapeToEdit;
+    const newX = e.target.x();
+    const newY = e.target.y();
+    const emplacementAncienX = newShape.points.indexOf(pointsToReplace.x);
+    const emplacementAncienY = newShape.points.indexOf(pointsToReplace.y);
+
+    newShape.points.splice(emplacementAncienX, 1, newX);
+    newShape.points.splice(emplacementAncienY, 1, newY);
+
+    setShapeToEdit(newShape);
+  };
+
+  const handleDragEnd = (e) => {
+    setShapeToEdit(shapeToEdit);
+  };
+
+  const handleAddPointEdit = (e) => {
+    const stage = e.target.getStage();
+    const point = stage.getPointerPosition();
+
+    let newList = shapeList;
+    let newShape = shapeToEdit;
+
+    // Vérifier s'il y a déjà un point à proximité
+    const nearbyPoint = newShape.points.some((pt, index) => {
+      if (index % 2 === 0) {
+        const x = newShape.points[index];
+        const y = newShape.points[index + 1];
+        const distance = Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2);
+        return distance < 10; // Définissez une distance de seuil appropriée
+      }
+      return false;
+    });
+
+    if (!nearbyPoint) {
+      newShape.points.push(point.x);
+      newShape.points.push(point.y);
+    }
+
+    // Mettre à jour la liste des formes avec la forme modifiée
+    const replace = shapeList.indexOf(shapeToEdit);
+    newList.splice(replace, 1, newShape);
+    setShapeList(newList);
+    setShape({});
+    setIsDrawing(false);
+    setPoints([]);
+    setConfirm(false);
+  };
+
+  useEffect(() => {
+    setShapeToEdit(shapeToEdit);
+  }, [shapeToEdit]);
+
+  const handleFinishEdit = () => {
+    if (shapeToEdit !== null && shapeToEdit?.points.length <= 4) {
+      // Supprimer shapeToEdit de shapeList
+      const newShapeList = shapeList.filter(
+        (shape) => shape.shape_id !== shapeToEdit.shape_id
+      );
+      setShapeList(newShapeList);
+
+      // Supprimer shapeToEdit
+      setShapeToEdit(null);
+    }
+
+    setShapeToEdit(null);
+    setNewPoints(null);
+    setPointsToReplace(null);
+    setIsEditing(false);
+  };
+
   return (
     <div className="container">
       <input
@@ -173,46 +278,64 @@ export default function App() {
         <button
           onClick={() => {
             setPlan(null);
-            handleDeleteImage();
           }}
         >
           Supprimer le plan
         </button>
       ) : null}
-
       <button
-        className={isDrawing ? "active" : "create"}
+        className={isDrawing || isEditing ? "active" : "create"}
         onClick={() => {
-          isDrawing ? setConfirm(true) : handleShapeState();
+          isDrawing
+            ? setConfirm(true)
+            : isEditing
+            ? handleFinishEdit()
+            : handleShapeState();
         }}
         width={50}
         height={50}
       >
-        {isDrawing ? "Terminer" : "Créer une zone"}
+        {isDrawing
+          ? "Terminer"
+          : isEditing
+          ? "Modifications terminées"
+          : "Créer une zone"}
       </button>
-      <button
-        onClick={() => {
-          handleUndo();
-        }}
-        width={50}
-        height={50}
-      >
-        Revenir en arrière
-      </button>
-      <button
-        onClick={() => {
-          handleClear();
-        }}
-        width={50}
-        height={50}
-      >
-        Effacer le plan
-      </button>
-      {shapeToEdit !== null ? (
-        <button width={50} height={50}>
-          Modifications terminées
+      {points.length > 0 ||
+      (shapeToEdit && shapeToEdit.points.length > 0 && isEditing) ? (
+        <button
+          onClick={() => {
+            isDrawing ? handleUndo() : isEditing ? handleUndoEdit() : null;
+          }}
+          width={50}
+          height={50}
+        >
+          Revenir en arrière
         </button>
       ) : null}
+      {shapeList.length > 0 ? (
+        <button
+          onClick={() => {
+            handleClear();
+          }}
+          width={50}
+          height={50}
+        >
+          Effacer le plan
+        </button>
+      ) : null}
+      {/* {shapeToEdit !== null && isEditing ? (
+        <button
+          className={shapeToEdit ? "active" : "create"}
+          onClick={() => {
+            handleFinishEdit();
+          }}
+          width={50}
+          height={50}
+        >
+          Modifications terminées
+        </button>
+      ) : null} */}
 
       <Stage
         width={window.innerWidth}
@@ -222,11 +345,11 @@ export default function App() {
         // }}
         className="Stage-Decoration"
         onMouseDown={(e) => {
-          confirm ? null : addPoint(e);
+          isEditing ? handleAddPointEdit(e) : confirm ? null : addPoint(e);
         }}
       >
         <Layer style={{ padding: "2em" }}>
-          {<Image ref={imageRef} />}
+          <Image ref={planRef} />
           <Rect
             style={{ padding: "2em" }}
             width={1000}
@@ -239,25 +362,6 @@ export default function App() {
                 const pts = shape?.points;
                 return (
                   <Group>
-                    {shape === shapeToEdit
-                      ? pts?.map((point, index) => {
-                          if (index % 2 === 0) {
-                            const x = pts[index];
-                            const y = pts[index + 1];
-                            return (
-                              <Circle
-                                draggable={shapeToEdit === shape}
-                                key={`circle_${index}`}
-                                x={x}
-                                y={y}
-                                radius={2}
-                                fill="yellow"
-                              />
-                            );
-                          }
-                          return null;
-                        })
-                      : null}
                     <Text
                       fill={"black"}
                       text={shape?.name}
@@ -285,10 +389,42 @@ export default function App() {
                       fill={`${shape.color}90`}
                       onClick={handleCloseShape}
                       onDblClick={() => {
+                        setShowMessage(true);
                         setShapeToEdit(shape);
-                        setIsEditing(true);
                       }}
                     />
+                    {isEditing && shape === shapeToEdit && pts.length > 0
+                      ? pts.map((pt, index) => {
+                          if (index % 2 === 0) {
+                            const x = pts[index];
+                            const y = pts[index + 1];
+                            return (
+                              <Circle
+                                onDragStart={() => {
+                                  setPointsToReplace({
+                                    x: x,
+                                    y: y,
+                                  });
+                                }}
+                                onDragMove={(e) => {
+                                  isEditing && pointsToReplace !== null
+                                    ? handleDragMove(e, x, y)
+                                    : null;
+                                }}
+                                onDragEnd={(e) => {
+                                  handleDragEnd(e);
+                                }}
+                                key={`circle_${index}`}
+                                draggable
+                                x={x}
+                                y={y}
+                                radius={5}
+                                fill="yellow"
+                              />
+                            );
+                          }
+                        })
+                      : null}
                   </Group>
                 );
               })
@@ -319,13 +455,32 @@ export default function App() {
                   key={`circle_${index}`}
                   x={x}
                   y={y}
-                  radius={2}
+                  radius={5}
                   fill="yellow"
                 />
               );
             }
             return null;
           })}
+          {shape === shapeToEdit
+            ? pts?.map((point, index) => {
+                if (index % 2 === 0) {
+                  const x = pts[index];
+                  const y = pts[index + 1];
+                  return (
+                    <Circle
+                      draggable={shapeToEdit === shape}
+                      key={`circle_${index}`}
+                      x={x}
+                      y={y}
+                      radius={5}
+                      fill="yellow"
+                    />
+                  );
+                }
+                return null;
+              })
+            : null}
         </Layer>
       </Stage>
       {confirm ? (
@@ -348,16 +503,16 @@ export default function App() {
               handleFinish();
             }}
           >
-            Terminer
+            Créer la zone
           </button>
         </div>
       ) : null}
-      {isEditing ? (
+      {showMessage ? (
         <div className="confirm">
           <button
             onClick={() => {
-              setIsEditing(false);
-              handleEditShape();
+              setIsEditing(true);
+              setShowMessage(false);
             }}
           >
             Modifier la forme
