@@ -185,6 +185,7 @@ export default function App() {
       })
       .filter(Boolean);
     setShapeList(newShapeList);
+    setShowMessage(false);
     setIsEditing(false);
     setShapeToEdit(null);
   };
