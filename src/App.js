@@ -119,7 +119,14 @@ export default function App() {
     if (shapeToEdit?.points.length > 1) {
       const newPoints = [...shapeToEdit.points];
       newPoints.pop();
-      setShapeToEdit({ ...shapeToEdit, points: newPoints });
+
+      const newShape = { ...shapeToEdit, points: newPoints };
+      setShapeToEdit(newShape);
+      const newList = [...shapeList];
+      // Mettre à jour la liste des formes avec la forme modifiée
+      const replace = shapeList.indexOf(shapeToEdit);
+      newList.splice(replace, 1, newShape);
+      setShapeList(newList);
     } else if (shapeToEdit !== null && shapeToEdit?.points.length <= 1) {
       // Supprimer shapeToEdit de shapeList
       const newShapeList = shapeList.filter(
@@ -127,6 +134,7 @@ export default function App() {
       );
       setShapeList(newShapeList);
       setShapeToEdit(null);
+      setIsEditing(false)
     } else {
       null;
     }
@@ -136,6 +144,8 @@ export default function App() {
     setPoints([]);
     setConfirm(false);
   };
+
+
 
   const handleClear = () => {
     setShapeList([]);
@@ -520,6 +530,13 @@ export default function App() {
             }}
           >
             Créer la zone
+          </button>
+          <button
+            onClick={() => {
+              setConfirm(false);
+            }}
+          >
+            Revenir au dessin de la forme
           </button>
         </div>
       ) : null}
