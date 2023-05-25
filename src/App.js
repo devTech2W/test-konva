@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useDebugValue } from "react";
 /* eslint-disable */
 import {
   Stage,
@@ -24,6 +24,7 @@ export default function App() {
   const [shape, setShape] = useState({
     shape_id: `shape_${shapeList.length}`,
     points: points,
+    pointsHistory: [],
     color: "red",
     name: `zone ${shapeList.length + 1}`,
   });
@@ -91,22 +92,33 @@ export default function App() {
       const stage = e.target.getStage();
       const point = stage.getPointerPosition();
       if (points.length >= 1) {
+        const newPointHistory = [
+          ...shape.pointsHistory,
+          { x: point.x, y: point.y },
+        ];
         const newPoints = [...points, { x: point.x, y: point.y }];
         setPoints(newPoints);
+        setShape({ ...shape, pointsHistory: newPointHistory });
       } else {
+        const points = { x: point.x, y: point.y };
         setPoints([{ x: point.x, y: point.y }]);
+        setShape({ ...shape, pointsHistory: [points] });
       }
     } else return;
   };
 
   const handleUndo = async () => {
     if (points.length > 0) {
-      let currentPoints = [];
-      for (let i = 0; i !== points.length - 1; i++) {
-        // eslint-disable-next-line no-unused-expressions
-        await currentPoints.push(points[i]);
-      }
+      let currentPoints = [...points];
+      let currentHistory = [...shape.pointsHistory];
+      // for (let i = 0; i !== points.length - 1; i++) {
+      //   // eslint-disable-next-line no-unused-expressions
+      //   await currentPoints.push(points[i]);
+      // }
+      currentPoints.pop();
+      currentHistory.pop();
       setPoints(currentPoints);
+      setShape({ ...shape, pointsHistory: currentHistory });
     } else {
     }
   };
@@ -114,9 +126,18 @@ export default function App() {
   const handleUndoEdit = async () => {
     if (shapeToEdit?.points.length > 1) {
       const newPoints = [...shapeToEdit.points];
-      newPoints.pop();
+      const newHistory = [...shapeToEdit.pointsHistory];
+      const indexToRemove = newPoints.indexOf(
+        newHistory[newHistory.length - 1]
+      );
+      newPoints.splice(indexToRemove, 1);
+      newHistory.pop();
 
-      const newShape = { ...shapeToEdit, points: newPoints };
+      const newShape = {
+        ...shapeToEdit,
+        points: newPoints,
+        pointsHistory: newHistory,
+      };
       setShapeToEdit(newShape);
       const newList = [...shapeList];
       // Mettre à jour la liste des formes avec la forme modifiée
@@ -157,6 +178,7 @@ export default function App() {
     setShape({
       shape_id: `shape_${shapeList.length}`,
       points: points,
+      poinsHistory: [],
       color: "#000000",
       name: `zone ${shapeList.length + 1}`,
     });
@@ -200,7 +222,6 @@ export default function App() {
       x: x,
       y: y,
     });
-    console.log(pointsToReplace);
     let newShape = { ...shapeToEdit };
     const newPoint = {
       x: e.target.x(),
@@ -225,7 +246,6 @@ export default function App() {
 
   const handleDragEnd = (e) => {
     setPointsToReplace({ x: null, y: null });
-    console.log("replace", pointsToReplace, shapeToEdit.points);
     // setShapeToEdit(shapeToEdit);
   };
 
@@ -269,6 +289,7 @@ export default function App() {
       });
 
       const nouveauTableau = [...shapeToEdit.points];
+      const newHistory = [...shapeToEdit.pointsHistory];
 
       // Vérifier si les deux points les plus proches sont adjacents
       if (Math.abs(point1.index - point2.index) === 1) {
@@ -280,7 +301,13 @@ export default function App() {
         nouveauTableau.splice(insertionIndex, 0, nouvelObjet);
       }
 
-      const newShape = { ...shapeToEdit, points: nouveauTableau };
+      newHistory.push(nouvelObjet);
+
+      const newShape = {
+        ...shapeToEdit,
+        points: nouveauTableau,
+        pointsHistory: newHistory,
+      };
       setShapeToEdit(newShape);
       const newList = [...shapeList];
       // Mettre à jour la liste des formes avec la forme modifiée
