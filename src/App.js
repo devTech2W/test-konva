@@ -11,13 +11,14 @@ import {
   Circle,
   Shape,
 } from "react-konva";
+import { Document } from "react-pdf";
 import "./App.css";
 
 export default function App() {
   const planRef = useRef(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
-  const [plan, setPlan] = useState(null);
+  const [planFile, setPlanFile] = useState(null);
   const [shapeList, setShapeList] = useState([]);
   const [confirm, setConfirm] = useState(false);
   const [points, setPoints] = useState([]);
@@ -39,6 +40,7 @@ export default function App() {
     x: null,
     y: null,
   });
+  const [pdfFile, setPdfFile] = useState();
 
   useEffect(() => {
     setShape({
@@ -66,26 +68,27 @@ export default function App() {
   };
 
   const handlePlanUpload = (e) => {
-    const uploadedImage = e.target.files[0];
-    const imageURL = URL.createObjectURL(uploadedImage);
-    const img = new window.Image();
-    img.src = imageURL;
-    img.onload = () => {
-      planRef.current.image(img);
-      planRef.current.getLayer().batchDraw();
-    };
+    if (e.target.files.length > 0) {
+      const fileType = e.target.files[0].type;
+      if (fileType === "image/png" || fileType === "image/jpeg") {
+        const uploadedImage = e.target.files[0];
+        const imageURL = URL.createObjectURL(uploadedImage);
+        const img = new window.Image();
+        img.src = imageURL;
+        img.onload = () => {
+          planRef.current.image(img);
+          planRef.current.getLayer().batchDraw();
+        };
+      } else if (fileType === "application/pdf") {
+        const file = e.target.files[0];
+        setPdfFile(file);
+      } else {
+        null;
+      }
+    } else {
+      null;
+    }
   };
-
-  // useEffect(() => {
-  //   if (plan) {
-  //     const image = new window.Image();
-  //     image.onload = () => {
-  //       imageRef.current.image(image);
-  //       imageRef.current.getLayer().batchDraw();
-  //     };
-  //     image.src = plan;
-  //   }
-  // }, [plan]);
 
   const addPoint = (e) => {
     if (isDrawing) {
@@ -353,13 +356,14 @@ export default function App() {
           handlePlanUpload(e);
         }}
       />
-      {plan ? (
+      {planRef ? (
         <button
           onClick={() => {
-            setPlan(null);
+            planRef.current?.image(null);
+            planRef.current?.getLayer().batchDraw();
           }}
         >
-          Supprimer le plan
+          Supprimer l'image
         </button>
       ) : null}
       <button
