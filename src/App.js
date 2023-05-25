@@ -111,10 +111,6 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    console.log(shapeList);
-  }, [shapeList]);
-
   const handleUndoEdit = async () => {
     if (shapeToEdit?.points.length > 1) {
       const newPoints = [...shapeToEdit.points];
@@ -134,7 +130,7 @@ export default function App() {
       );
       setShapeList(newShapeList);
       setShapeToEdit(null);
-      setIsEditing(false)
+      setIsEditing(false);
     } else {
       null;
     }
@@ -144,8 +140,6 @@ export default function App() {
     setPoints([]);
     setConfirm(false);
   };
-
-
 
   const handleClear = () => {
     setShapeList([]);
@@ -206,22 +200,36 @@ export default function App() {
       x: x,
       y: y,
     });
-    let newShape = shapeToEdit;
-    const newX = e.target.x();
-    const newY = e.target.y();
-    const emplacementAncienX = newShape.points.indexOf(pointsToReplace.x);
-    const emplacementAncienY = newShape.points.indexOf(pointsToReplace.y);
+    console.log(pointsToReplace);
+    let newShape = { ...shapeToEdit };
+    const newPoint = {
+      x: e.target.x(),
+      y: e.target.y(),
+    };
+    const emplacementPoint = newShape.points.findIndex(
+      (point) => point.x === pointsToReplace.x && point.y === pointsToReplace.y
+    );
 
-    newShape.points.splice(emplacementAncienX, 1, newX);
-    newShape.points.splice(emplacementAncienY, 1, newY);
+    if (emplacementPoint !== -1) {
+      newShape.points.splice(emplacementPoint, 1, newPoint);
+      setShapeToEdit(newShape);
+      const newList = [...shapeList];
+      // Mettre à jour la liste des formes avec la forme modifiée
+      const replace = shapeList.indexOf(shapeToEdit);
+      newList.splice(replace, 1, newShape);
+      setShapeList(newList);
+    } else {
+      null;
+    }
   };
 
   const handleDragEnd = (e) => {
-    setShapeToEdit(shapeToEdit);
+    setPointsToReplace({ x: null, y: null });
+    console.log("replace", pointsToReplace, shapeToEdit.points);
+    // setShapeToEdit(shapeToEdit);
   };
 
   const handleAddPointEdit = (e) => {
-    console.log(shapeToEdit);
     // vérifier les 2 points les plus proches
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
@@ -279,9 +287,10 @@ export default function App() {
       const replace = shapeList.indexOf(shapeToEdit);
       newList.splice(replace, 1, newShape);
       setShapeList(newList);
+      setShape({});
+    } else {
+      null;
     }
-
-    setShape({});
   };
 
   useEffect(() => {
@@ -293,7 +302,8 @@ export default function App() {
   }, [shapeList]);
 
   const handleFinishEdit = () => {
-    if (shapeToEdit !== null && shapeToEdit?.points.length <= 4) {
+    alert("ok");
+    if (shapeToEdit !== null && shapeToEdit?.points.length < 1) {
       // Supprimer shapeToEdit de shapeList
       const newShapeList = shapeList.filter(
         (shape) => shape.shape_id !== shapeToEdit.shape_id
@@ -303,7 +313,7 @@ export default function App() {
       // Supprimer shapeToEdit
       setShapeToEdit(null);
     }
-
+    setIsEditing(false);
     setShapeToEdit(null);
   };
 
@@ -435,12 +445,7 @@ export default function App() {
                           const y = pts[index].y;
                           return (
                             <Circle
-                              onDragStart={() => {
-                                setPointsToReplace({
-                                  x: x,
-                                  y: y,
-                                });
-                              }}
+                              onDragStart={() => {}}
                               onDragMove={(e) => {
                                 isEditing && pointsToReplace !== null
                                   ? handleDragMove(e, x, y)
