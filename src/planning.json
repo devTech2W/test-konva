@@ -1,0 +1,702 @@
+[
+  {
+    "UID": "6",
+    "name": "Cr\u00e9ation emprise",
+    "manualstart": "2020-05-11T09:00:00",
+    "manualfinish": "2020-05-29T18:00:00",
+    "PredecessorUID": "5"
+  },
+  {
+    "UID": "128",
+    "name": "D\u00e9montage base vie et remise en \u00e9tat",
+    "manualstart": "2021-07-20T09:00:00",
+    "manualfinish": "2021-08-06T18:00:00",
+    "PredecessorUID": "6"
+  },
+  {
+    "UID": "127",
+    "name": "D\u00e9pose emprise",
+    "manualstart": "2021-07-21T09:00:00",
+    "manualfinish": "2021-08-06T18:00:00",
+    "PredecessorUID": "128"
+  },
+  {
+    "UID": "16",
+    "name": "Plancher PH RDC",
+    "manualstart": "2020-08-17T09:00:00",
+    "manualfinish": "2020-09-11T18:00:00",
+    "PredecessorUID": "15"
+  },
+  {
+    "UID": "17",
+    "name": "El\u00e9vation du R+1 (ma\u00e7onneries, pr\u00e9murs, poteaux)",
+    "manualstart": "2021-01-04T09:00:00",
+    "manualfinish": "2021-01-08T18:00:00",
+    "PredecessorUID": "16"
+  },
+  {
+    "UID": "18",
+    "name": "Cristalliation du sous sol ",
+    "manualstart": "2021-01-04T09:00:00",
+    "manualfinish": "2021-01-15T18:00:00",
+    "PredecessorUID": "17"
+  },
+  {
+    "UID": "197",
+    "name": "R\u00e9alisation des murets et supports de menuiseries",
+    "manualstart": "2021-03-18T09:00:00",
+    "manualfinish": "2021-03-22T18:00:00",
+    "PredecessorUID": "18"
+  },
+  {
+    "UID": "19",
+    "name": "El\u00e9vation du R+2 (ma\u00e7onneries, pr\u00e9mus, poteaux)",
+    "manualstart": "2021-01-18T09:00:00",
+    "manualfinish": "2021-01-22T18:00:00",
+    "PredecessorUID": "197"
+  },
+  {
+    "UID": "186",
+    "name": "Pose de carrelage / faiences ",
+    "manualstart": "2021-05-24T09:00:00",
+    "manualfinish": "2021-06-11T18:00:00",
+    "PredecessorUID": "19"
+  },
+  {
+    "UID": "149",
+    "name": "Travaux de clotures et VRD ",
+    "manualstart": "2021-06-28T09:00:00",
+    "manualfinish": "2021-07-16T18:00:00",
+    "PredecessorUID": "186"
+  },
+  {
+    "UID": "24",
+    "name": "Pose du plancher CLT R+1",
+    "manualstart": "2020-12-07T09:00:00",
+    "manualfinish": "2020-12-16T18:00:00",
+    "PredecessorUID": "23"
+  },
+  {
+    "UID": "25",
+    "name": "Pose de la structure m\u00e9tallique R+1",
+    "manualstart": "2021-01-25T09:00:00",
+    "manualfinish": "2021-01-27T18:00:00",
+    "PredecessorUID": "24"
+  },
+  {
+    "UID": "26",
+    "name": "Pose des murs CLT (1er \u00e9tage)",
+    "manualstart": "2021-01-28T09:00:00",
+    "manualfinish": "2021-02-01T18:00:00",
+    "PredecessorUID": "25"
+  },
+  {
+    "UID": "27",
+    "name": "Pose du plancher CLT R+2",
+    "manualstart": "2021-02-01T09:00:00",
+    "manualfinish": "2021-02-05T18:00:00",
+    "PredecessorUID": "26"
+  },
+  {
+    "UID": "28",
+    "name": "Pose de la structure m\u00e9tallique R+2",
+    "manualstart": "2021-02-08T09:00:00",
+    "manualfinish": "2021-02-15T18:00:00",
+    "PredecessorUID": "27"
+  },
+  {
+    "UID": "29",
+    "name": "Pose des murs CLT R+2",
+    "manualstart": "2021-02-16T09:00:00",
+    "manualfinish": "2021-02-25T18:00:00",
+    "PredecessorUID": "28"
+  },
+  {
+    "UID": "154",
+    "name": "Pose charpente support bac acier",
+    "manualstart": "2021-03-01T09:00:00",
+    "manualfinish": "2021-03-04T18:00:00",
+    "PredecessorUID": "28"
+  },
+  {
+    "UID": "154",
+    "name": "Pose charpente support bac acier",
+    "manualstart": "2021-03-01T09:00:00",
+    "manualfinish": "2021-03-04T18:00:00",
+    "PredecessorUID": "29"
+  },
+  {
+    "UID": "30",
+    "name": "Pose de la toiture CLT",
+    "manualstart": "2021-03-08T09:00:00",
+    "manualfinish": "2021-03-09T18:00:00",
+    "PredecessorUID": "29"
+  },
+  {
+    "UID": "30",
+    "name": "Pose de la toiture CLT",
+    "manualstart": "2021-03-08T09:00:00",
+    "manualfinish": "2021-03-09T18:00:00",
+    "PredecessorUID": "154"
+  },
+  {
+    "UID": "32",
+    "name": "Pose de la charpente",
+    "manualstart": "2021-03-10T09:00:00",
+    "manualfinish": "2021-03-12T18:00:00",
+    "PredecessorUID": "31"
+  },
+  {
+    "UID": "31",
+    "name": "Pose fa\u00e7ades ossatures bois",
+    "manualstart": "2021-03-15T09:00:00",
+    "manualfinish": "2021-04-06T18:00:00",
+    "PredecessorUID": "30"
+  },
+  {
+    "UID": "157",
+    "name": "Pose chape s\u00e8che",
+    "manualstart": "2021-03-24T09:00:00",
+    "manualfinish": "2021-04-15T18:00:00",
+    "PredecessorUID": "32"
+  },
+  {
+    "UID": "35",
+    "name": "Etanch\u00e9it\u00e9 sur CLT R+2",
+    "manualstart": "2021-04-12T09:00:00",
+    "manualfinish": "2021-04-30T18:00:00",
+    "PredecessorUID": "34"
+  },
+  {
+    "UID": "167",
+    "name": "Pose bacs aciers + \u00e9tanch\u00e9it\u00e9 RDC",
+    "manualstart": "2021-04-26T09:00:00",
+    "manualfinish": "2021-04-30T18:00:00",
+    "PredecessorUID": "35"
+  },
+  {
+    "UID": "38",
+    "name": "Pose du bardage aluminium",
+    "manualstart": "2021-04-26T09:00:00",
+    "manualfinish": "2021-05-21T18:00:00",
+    "PredecessorUID": "37"
+  },
+  {
+    "UID": "169",
+    "name": "Pose du bardage aluminium",
+    "manualstart": "2021-05-24T09:00:00",
+    "manualfinish": "2021-06-11T18:00:00",
+    "PredecessorUID": "38"
+  },
+  {
+    "UID": "42",
+    "name": "Pose verri\u00e8re escalier",
+    "manualstart": "2021-04-12T09:00:00",
+    "manualfinish": "2021-04-30T18:00:00",
+    "PredecessorUID": "41"
+  },
+  {
+    "UID": "43",
+    "name": "Pr\u00e9paration de support pour la marquise",
+    "manualstart": "2021-04-26T09:00:00",
+    "manualfinish": "2021-04-30T18:00:00",
+    "PredecessorUID": "42"
+  },
+  {
+    "UID": "193",
+    "name": "Pose marquise",
+    "manualstart": "2021-07-12T09:00:00",
+    "manualfinish": "2021-07-16T18:00:00",
+    "PredecessorUID": "43"
+  },
+  {
+    "UID": "50",
+    "name": "Pose gardes-corps et mains courantes",
+    "manualstart": "2021-05-10T09:00:00",
+    "manualfinish": "2021-05-28T18:00:00",
+    "PredecessorUID": "49"
+  },
+  {
+    "UID": "47",
+    "name": "Pose des clotures",
+    "manualstart": "2021-06-21T09:00:00",
+    "manualfinish": "2021-07-09T18:00:00",
+    "PredecessorUID": "50"
+  },
+  {
+    "UID": "48",
+    "name": "Pose d'escalier exterieur ",
+    "manualstart": "2021-07-05T09:00:00",
+    "manualfinish": "2021-07-23T18:00:00",
+    "PredecessorUID": "47"
+  },
+  {
+    "UID": "54",
+    "name": "Cloisons",
+    "manualstart": "2021-03-29T09:00:00",
+    "manualfinish": "2021-06-11T18:00:00",
+    "PredecessorUID": "53"
+  },
+  {
+    "UID": "55",
+    "name": "Faux plafonds structure",
+    "manualstart": "2021-04-26T09:00:00",
+    "manualfinish": "2021-06-18T18:00:00",
+    "PredecessorUID": "54"
+  },
+  {
+    "UID": "201",
+    "name": "Pose du BA18 au RDC",
+    "manualstart": "2021-05-03T09:00:00",
+    "manualfinish": "2021-05-07T18:00:00",
+    "PredecessorUID": "54"
+  },
+  {
+    "UID": "56",
+    "name": "Faux plafonds plaques",
+    "manualstart": "2021-06-28T09:00:00",
+    "manualfinish": "2021-07-16T18:00:00",
+    "PredecessorUID": "55"
+  },
+  {
+    "UID": "56",
+    "name": "Faux plafonds plaques",
+    "manualstart": "2021-06-28T09:00:00",
+    "manualfinish": "2021-07-16T18:00:00",
+    "PredecessorUID": "201"
+  },
+  {
+    "UID": "57",
+    "name": "Faux plafonds dalles",
+    "manualstart": "2021-07-12T09:00:00",
+    "manualfinish": "2021-07-23T18:00:00",
+    "PredecessorUID": "56"
+  },
+  {
+    "UID": "172",
+    "name": "Pose blocs portes RDC",
+    "manualstart": "2021-05-03T09:00:00",
+    "manualfinish": "2021-05-12T18:00:00",
+    "PredecessorUID": "74"
+  },
+  {
+    "UID": "173",
+    "name": "Pose ch\u00e2ssis vitr\u00e9s RDC",
+    "manualstart": "2021-05-03T09:00:00",
+    "manualfinish": "2021-05-12T18:00:00",
+    "PredecessorUID": "172"
+  },
+  {
+    "UID": "180",
+    "name": "Pose placards et meubles RDC",
+    "manualstart": "2021-05-10T09:00:00",
+    "manualfinish": "2021-05-14T18:00:00",
+    "PredecessorUID": "181"
+  },
+  {
+    "UID": "181",
+    "name": "Pose cloisonnette WC et miroirs RDC",
+    "manualstart": "2021-05-03T09:00:00",
+    "manualfinish": "2021-05-07T18:00:00",
+    "PredecessorUID": "173"
+  },
+  {
+    "UID": "179",
+    "name": "Pose blocs portes R+1",
+    "manualstart": "2021-05-10T09:00:00",
+    "manualfinish": "2021-05-14T18:00:00",
+    "PredecessorUID": "180"
+  },
+  {
+    "UID": "178",
+    "name": "Pose ch\u00e2ssis vitr\u00e9s R+1",
+    "manualstart": "2021-05-10T09:00:00",
+    "manualfinish": "2021-05-14T18:00:00",
+    "PredecessorUID": "179"
+  },
+  {
+    "UID": "177",
+    "name": "Pose cloisonnette WC et miroirs R+1",
+    "manualstart": "2021-05-10T09:00:00",
+    "manualfinish": "2021-05-14T18:00:00",
+    "PredecessorUID": "178"
+  },
+  {
+    "UID": "182",
+    "name": "Pose blocs portes R+2",
+    "manualstart": "2021-05-17T09:00:00",
+    "manualfinish": "2021-05-21T18:00:00",
+    "PredecessorUID": "177"
+  },
+  {
+    "UID": "176",
+    "name": "Pose ch\u00e2ssis vitr\u00e9s R+2",
+    "manualstart": "2021-05-17T09:00:00",
+    "manualfinish": "2021-05-21T18:00:00",
+    "PredecessorUID": "182"
+  },
+  {
+    "UID": "183",
+    "name": "Pose cloisonnette WC et miroirs R+2",
+    "manualstart": "2021-05-24T09:00:00",
+    "manualfinish": "2021-05-28T18:00:00",
+    "PredecessorUID": "176"
+  },
+  {
+    "UID": "175",
+    "name": "Pose plinthes & stylobates tous niveaux",
+    "manualstart": "2021-05-17T09:00:00",
+    "manualfinish": "2021-06-04T18:00:00",
+    "PredecessorUID": "183"
+  },
+  {
+    "UID": "174",
+    "name": "Pose vantaux + \u00e9quipements tous niveaux",
+    "manualstart": "2021-06-07T09:00:00",
+    "manualfinish": "2021-06-25T18:00:00",
+    "PredecessorUID": "175"
+  },
+  {
+    "UID": "75",
+    "name": "Pose fa\u00e7ade gaine technique tous niveaux",
+    "manualstart": "2021-06-21T09:00:00",
+    "manualfinish": "2021-07-02T18:00:00",
+    "PredecessorUID": "174"
+  },
+  {
+    "UID": "76",
+    "name": "Pose vitrage tous niveaux",
+    "manualstart": "2021-06-21T09:00:00",
+    "manualfinish": "2021-07-02T18:00:00",
+    "PredecessorUID": "75"
+  },
+  {
+    "UID": "77",
+    "name": "Pose plaques murales d\u00e9cochoc tous niveaux",
+    "manualstart": "2021-06-28T09:00:00",
+    "manualfinish": "2021-07-02T18:00:00",
+    "PredecessorUID": "76"
+  },
+  {
+    "UID": "63",
+    "name": "Peinture des murs",
+    "manualstart": "2021-07-05T09:00:00",
+    "manualfinish": "2021-07-30T18:00:00",
+    "PredecessorUID": "62"
+  },
+  {
+    "UID": "64",
+    "name": "Peinture sur ouvrages bois et m\u00e9talliques",
+    "manualstart": "2021-08-02T09:00:00",
+    "manualfinish": "2021-08-06T18:00:00",
+    "PredecessorUID": "63"
+  },
+  {
+    "UID": "67",
+    "name": "Pose du sol PVC",
+    "manualstart": "2021-07-27T09:00:00",
+    "manualfinish": "2021-08-16T18:00:00",
+    "PredecessorUID": "66"
+  },
+  {
+    "UID": "68",
+    "name": "Rev\u00eatement escalier",
+    "manualstart": "2021-08-16T09:00:00",
+    "manualfinish": "2021-09-07T18:00:00",
+    "PredecessorUID": "67"
+  },
+  {
+    "UID": "69",
+    "name": "Nettoyage complet de chantier",
+    "manualstart": "2021-09-08T09:00:00",
+    "manualfinish": "2021-09-10T18:00:00",
+    "PredecessorUID": "68"
+  },
+  {
+    "UID": "130",
+    "name": "Interconnexions de terre",
+    "manualstart": "2020-08-24T09:00:00",
+    "manualfinish": "2020-08-28T18:00:00",
+    "PredecessorUID": "141"
+  },
+  {
+    "UID": "135",
+    "name": "Alimentation principale depuis TGBT",
+    "manualstart": "2020-08-31T09:00:00",
+    "manualfinish": "2020-10-02T18:00:00",
+    "PredecessorUID": "130"
+  },
+  {
+    "UID": "134",
+    "name": "Intervention dans TGBT \u00e9cole",
+    "manualstart": "2020-10-19T09:00:00",
+    "manualfinish": "2020-10-23T18:00:00",
+    "PredecessorUID": "135"
+  },
+  {
+    "UID": "133",
+    "name": "Chemins de c\u00e2bles CFO/CFA",
+    "manualstart": "2021-03-25T09:00:00",
+    "manualfinish": "2021-04-14T18:00:00",
+    "PredecessorUID": "134"
+  },
+  {
+    "UID": "144",
+    "name": "Distribution principale CFA / CFO",
+    "manualstart": "2021-03-25T09:00:00",
+    "manualfinish": "2021-05-26T18:00:00",
+    "PredecessorUID": "133"
+  },
+  {
+    "UID": "132",
+    "name": "Distribution sp\u00e9cifique CFO",
+    "manualstart": "2021-03-29T09:00:00",
+    "manualfinish": "2021-04-30T18:00:00",
+    "PredecessorUID": "144"
+  },
+  {
+    "UID": "131",
+    "name": "Distribution secondaire CFO / CFA",
+    "manualstart": "2021-04-12T09:00:00",
+    "manualfinish": "2021-05-07T18:00:00",
+    "PredecessorUID": "132"
+  },
+  {
+    "UID": "143",
+    "name": "Fourniture, pose et raccordement TGBT ",
+    "manualstart": "2021-04-19T09:00:00",
+    "manualfinish": "2021-05-21T18:00:00",
+    "PredecessorUID": "131"
+  },
+  {
+    "UID": "82",
+    "name": "Pose et raccordement tableaux divisionnaires",
+    "manualstart": "2021-05-17T09:00:00",
+    "manualfinish": "2021-06-11T18:00:00",
+    "PredecessorUID": "143"
+  },
+  {
+    "UID": "83",
+    "name": "Pose et raccordement terminaux CFO",
+    "manualstart": "2021-06-14T09:00:00",
+    "manualfinish": "2021-07-09T18:00:00",
+    "PredecessorUID": "82"
+  },
+  {
+    "UID": "140",
+    "name": "Pose et raccordement luminaires",
+    "manualstart": "2021-06-14T09:00:00",
+    "manualfinish": "2021-08-06T18:00:00",
+    "PredecessorUID": "83"
+  },
+  {
+    "UID": "139",
+    "name": "Pose et raccordement \u00e9clairage de s\u00e9curit\u00e9",
+    "manualstart": "2021-07-12T09:00:00",
+    "manualfinish": "2021-07-23T18:00:00",
+    "PredecessorUID": "140"
+  },
+  {
+    "UID": "138",
+    "name": "Pose et raccordement terminaux CFA",
+    "manualstart": "2021-07-26T09:00:00",
+    "manualfinish": "2021-08-20T18:00:00",
+    "PredecessorUID": "139"
+  },
+  {
+    "UID": "137",
+    "name": "Pose et raccordement terminaux SSI / Sonnerie",
+    "manualstart": "2021-08-09T09:00:00",
+    "manualfinish": "2021-09-10T18:00:00",
+    "PredecessorUID": "138"
+  },
+  {
+    "UID": "136",
+    "name": "Pose et raccordement terminaux AI / AT",
+    "manualstart": "2021-08-23T09:00:00",
+    "manualfinish": "2021-09-10T18:00:00",
+    "PredecessorUID": "137"
+  },
+  {
+    "UID": "88",
+    "name": "Raccordement, hydraulique, A\u00e9raulique et \u00e9lectrique",
+    "manualstart": "2021-03-29T09:00:00",
+    "manualfinish": "2021-05-14T18:00:00",
+    "PredecessorUID": "87"
+  },
+  {
+    "UID": "89",
+    "name": "Pose des terminaux",
+    "manualstart": "2021-04-19T09:00:00",
+    "manualfinish": "2021-05-28T18:00:00",
+    "PredecessorUID": "88"
+  },
+  {
+    "UID": "93",
+    "name": "Pose des r\u00e9seaux de gaine",
+    "manualstart": "2021-05-10T09:00:00",
+    "manualfinish": "2021-07-16T18:00:00",
+    "PredecessorUID": "92"
+  },
+  {
+    "UID": "94",
+    "name": "Pose des bouches de ventilation",
+    "manualstart": "2021-06-14T09:00:00",
+    "manualfinish": "2021-07-16T18:00:00",
+    "PredecessorUID": "93"
+  },
+  {
+    "UID": "95",
+    "name": "Traitement par des grilles",
+    "manualstart": "2021-06-14T09:00:00",
+    "manualfinish": "2021-07-16T18:00:00",
+    "PredecessorUID": "94"
+  },
+  {
+    "UID": "98",
+    "name": "R\u00e9alisation des distribution EF/EC",
+    "manualstart": "2021-04-19T09:00:00",
+    "manualfinish": "2021-05-14T18:00:00",
+    "PredecessorUID": "97"
+  },
+  {
+    "UID": "99",
+    "name": "Raccordement des \u00e9vacuations",
+    "manualstart": "2021-05-17T09:00:00",
+    "manualfinish": "2021-06-04T18:00:00",
+    "PredecessorUID": "98"
+  },
+  {
+    "UID": "100",
+    "name": "Pose des sanitaires",
+    "manualstart": "2021-06-07T09:00:00",
+    "manualfinish": "2021-06-18T18:00:00",
+    "PredecessorUID": "99"
+  },
+  {
+    "UID": "101",
+    "name": "R\u00e9ception - Mise en service - Mesure",
+    "manualstart": "2021-06-28T09:00:00",
+    "manualfinish": "2021-07-16T18:00:00",
+    "PredecessorUID": "100"
+  },
+  {
+    "UID": "105",
+    "name": "Montage d'ascenseur",
+    "manualstart": "2021-05-31T09:00:00",
+    "manualfinish": "2021-06-18T18:00:00",
+    "PredecessorUID": "189"
+  },
+  {
+    "UID": "106",
+    "name": "R\u00e8glages + contr\u00f4le CE + R\u00e9ception client",
+    "manualstart": "2021-06-21T09:00:00",
+    "manualfinish": "2021-06-25T18:00:00",
+    "PredecessorUID": "105"
+  },
+  {
+    "UID": "145",
+    "name": "R\u00e9seau frigorifique",
+    "manualstart": "2021-05-03T09:00:00",
+    "manualfinish": "2021-05-07T18:00:00",
+    "PredecessorUID": "110"
+  },
+  {
+    "UID": "111",
+    "name": "Equipement frigorifique",
+    "manualstart": "2021-06-07T09:00:00",
+    "manualfinish": "2021-06-11T18:00:00",
+    "PredecessorUID": "145"
+  },
+  {
+    "UID": "112",
+    "name": "Pose panneaux isothermes",
+    "manualstart": "2021-06-07T09:00:00",
+    "manualfinish": "2021-06-18T18:00:00",
+    "PredecessorUID": "111"
+  },
+  {
+    "UID": "113",
+    "name": "Mat\u00e9riel de cuisine",
+    "manualstart": "2021-08-16T09:00:00",
+    "manualfinish": "2021-08-27T18:00:00",
+    "PredecessorUID": "112"
+  },
+  {
+    "UID": "114",
+    "name": "Laverie",
+    "manualstart": "2021-08-30T09:00:00",
+    "manualfinish": "2021-09-03T18:00:00",
+    "PredecessorUID": "113"
+  },
+  {
+    "UID": "115",
+    "name": "Mobilier de distribution",
+    "manualstart": "2021-08-30T09:00:00",
+    "manualfinish": "2021-09-03T18:00:00",
+    "PredecessorUID": "114"
+  },
+  {
+    "UID": "146",
+    "name": "Essais et mise en route",
+    "manualstart": "2021-09-06T09:00:00",
+    "manualfinish": "2021-09-08T18:00:00",
+    "PredecessorUID": "115"
+  },
+  {
+    "UID": "116",
+    "name": "Formation du personnel",
+    "manualstart": "2021-09-09T09:00:00",
+    "manualfinish": "2021-09-09T18:00:00",
+    "PredecessorUID": "146"
+  },
+  {
+    "UID": "198",
+    "name": "lev\u00e9es de r\u00e9serves lot 2 entreprise CRUARD",
+    "manualstart": "2021-07-07T09:00:00",
+    "manualfinish": "2021-07-20T18:00:00",
+    "PredecessorUID": "199"
+  },
+  {
+    "UID": "119",
+    "name": "O.P.R lots 1 - 3 \u00e0 9",
+    "manualstart": "2021-08-30T09:00:00",
+    "manualfinish": "2021-08-30T18:00:00",
+    "PredecessorUID": "198"
+  },
+  {
+    "UID": "120",
+    "name": "R\u00e9ception lots 1 \u00e0 9",
+    "manualstart": "2021-08-31T09:00:00",
+    "manualfinish": "2021-08-31T18:00:00",
+    "PredecessorUID": "119"
+  },
+  {
+    "UID": "150",
+    "name": "Lev\u00e9es de r\u00e9serves lots 1 - 3 \u00e0 9",
+    "manualstart": "2021-08-30T09:00:00",
+    "manualfinish": "2021-09-10T18:00:00",
+    "PredecessorUID": "120"
+  },
+  {
+    "UID": "121",
+    "name": "OPR Lot 10",
+    "manualstart": "2021-09-07T09:00:00",
+    "manualfinish": "2021-09-07T18:00:00",
+    "PredecessorUID": "150"
+  },
+  {
+    "UID": "123",
+    "name": "Nettoyage final du chantier",
+    "manualstart": "2021-09-10T09:00:00",
+    "manualfinish": "2021-09-10T18:00:00",
+    "PredecessorUID": "121"
+  },
+  {
+    "UID": "124",
+    "name": "R\u00e9ception finale ",
+    "manualstart": "2021-09-13T09:00:00",
+    "manualfinish": "2021-09-13T18:00:00",
+    "PredecessorUID": "123"
+  }
+]
