@@ -93,7 +93,6 @@ export default function App() {
   };
 
   useEffect(() => {
-    console.log(updatedSelectedTasks);
     setGivenTasks(updatedSelectedTasks);
   }, [updatedSelectedTasks]);
 
@@ -254,23 +253,30 @@ export default function App() {
     }
   };
 
-  const handleEditShape = () => {};
-
   const handleDeleteShape = () => {
     const idToDelete = shapeToEdit.shape_id;
-    const newShapeList = shapeList
-      .map((sha) => {
-        return sha.shape_id !== idToDelete ? sha : null;
-      })
-      .filter(Boolean);
-    const indexToDelete = givenTasks.indexOf(shapeToEdit.task);
-    givenTasks.splice(indexToDelete, 1);
+    const newShapeList = shapeList.filter((sha) => sha.shape_id !== idToDelete);
     setShapeList(newShapeList);
     setShowMessage(false);
     setIsEditing(false);
     setShapeToEdit(null);
     setInitialShapeToEdit(null);
-    setShowMessage(false);
+    setGivenTasks(null);
+  };
+
+  useEffect(() => {
+    handleAssingGivenTasks();
+  }, [shapeList]);
+
+  const handleAssingGivenTasks = () => {
+    const newGivenTaskList = [];
+
+    shapeList.forEach((shape) => {
+      const { taskList } = shape;
+      newGivenTaskList.push(...taskList);
+    });
+
+    setGivenTasks(newGivenTaskList);
   };
 
   const handleDragMove = (e, x, y) => {
