@@ -48,6 +48,7 @@ export default function App() {
   });
   const [deleteBtn, setDeleteBtn] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState([]);
+  const [updatedSelectedTasks, setUpdatedSelectedTasks] = useState([]);
 
   useEffect(() => {
     fetchTasks();
@@ -75,25 +76,26 @@ export default function App() {
     });
   }, [shapeList]);
 
-  // option qui met le givenTask à jour
-  useEffect(() => {
-    let newGivenTasks = [];
-    shapeList?.map((sh) => {
-      newGivenTasks = [...newGivenTasks, sh.taskList];
-    });
-    newGivenTasks = [...newGivenTasks, shapeToEdit?.taskList];
-    console.log(newGivenTasks);
-  }, [shapeToEdit, shape, shapeList]);
-
   const handleColorChange = (newColor) => {
     setShape({ ...shape, color: newColor });
   };
 
   const handleEditTask = (option) => {
-    console.log("option", option);
-    console.log("liste", shapeToEdit.taskList);
-    console.log("givenTasks", givenTasks);
+    const updatedShape = { ...shapeToEdit, taskList: option };
+    let updatedGivenTasks = givenTasks.filter(
+      (task) => !shapeToEdit?.taskList?.includes(task)
+    );
+
+    updatedGivenTasks = [...updatedGivenTasks, ...option];
+
+    setUpdatedSelectedTasks(updatedGivenTasks);
+    setShapeToEdit(updatedShape);
   };
+
+  useEffect(() => {
+    console.log(updatedSelectedTasks);
+    setGivenTasks(updatedSelectedTasks);
+  }, [updatedSelectedTasks]);
 
   const handlePlanUpload = (e) => {
     const uploadedImage = e.target.files[0];
@@ -383,21 +385,28 @@ export default function App() {
   }, [shapeList]);
 
   const handleFinishEdit = () => {
-    if (shapeToEdit !== null && shapeToEdit?.points.length < 1) {
-      // Supprimer shapeToEdit de shapeList
-      const newShapeList = shapeList.filter(
-        (shape) => shape.shape_id !== shapeToEdit.shape_id
-      );
-      setShapeList(newShapeList);
+    if (!shapeToEdit.taskList.length > 0) {
+      alert("veuillez assigner une tâche à la zone");
+    } else {
+      const indexToEdit = shapeList.indexOf(initlaShapeToEdit);
+      const newShapeList = [...shapeList];
+      newShapeList.splice(indexToEdit, 1, shapeToEdit);
+      if (shapeToEdit !== null && shapeToEdit?.points.length < 1) {
+        // Supprimer shapeToEdit de shapeList
+        const newShapeList = shapeList.filter(
+          (shape) => shape.shape_id !== shapeToEdit.shape_id
+        );
 
-      // Supprimer shapeToEdit
+        // Supprimer shapeToEdit
+        setShapeToEdit(null);
+        setInitialShapeToEdit(null);
+      }
+      setShapeList(newShapeList);
+      setIsEditing(false);
       setShapeToEdit(null);
       setInitialShapeToEdit(null);
+      setShowMessage(false);
     }
-    setIsEditing(false);
-    setShapeToEdit(null);
-    setInitialShapeToEdit(null);
-    setShowMessage(false);
   };
 
   return (
@@ -712,15 +721,14 @@ export default function App() {
             >
               Modification terminée
             </button>
-          ) : (
-            <button
-              onClick={() => {
-                handleCancelCreation();
-              }}
-            >
-              Annuler
-            </button>
-          )}
+          ) : null}
+          <button
+            onClick={() => {
+              handleCancelCreation();
+            }}
+          >
+            Annuler
+          </button>
         </div>
       ) : null}
     </div>
