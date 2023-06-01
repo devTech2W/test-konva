@@ -350,6 +350,35 @@ export default function App() {
         }
       });
 
+      // Ajouter le dernier point entre le dernier et le premier point
+      const lastPointIndex = shapeToEdit.points.length - 1;
+      const distanceToFirst = Math.sqrt(
+        Math.pow(
+          shapeToEdit.points[lastPointIndex].x - shapeToEdit.points[0].x,
+          2
+        ) +
+          Math.pow(
+            shapeToEdit.points[lastPointIndex].y - shapeToEdit.points[0].y,
+            2
+          )
+      );
+
+      if (distanceToFirst < distanceMin1) {
+        distanceMin2 = distanceMin1;
+        distanceMin1 = distanceToFirst;
+        point2 = point1;
+        point1 = {
+          ...shapeToEdit.points[lastPointIndex],
+          index: lastPointIndex,
+        };
+      } else if (distanceToFirst < distanceMin2) {
+        distanceMin2 = distanceToFirst;
+        point2 = {
+          ...shapeToEdit.points[lastPointIndex],
+          index: lastPointIndex,
+        };
+      }
+
       const nouveauTableau = [...shapeToEdit.points];
       const newHistory = [...shapeToEdit.pointsHistory];
 
