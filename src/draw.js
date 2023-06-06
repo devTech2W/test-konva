@@ -1,7 +1,4 @@
 import React, { useState, useEffect, useRef, useDebugValue } from "react";
-import moment from "moment/moment";
-import Select from "react-select";
-import Gantt from "./Gantt";
 /* eslint-disable */
 import {
   Stage,
@@ -16,69 +13,13 @@ import {
 } from "react-konva";
 import { Document } from "react-pdf";
 import "./App.css";
-import Planning from "./TCE ARC ind7 17-04-23.json";
 
 export default function App() {
   const planRef = useRef(null);
 
-  const startDate = new Date("06-20-2021");
-  const endDate = new Date("02-12-2022");
-
   const [isDrawing, setIsDrawing] = useState(false);
+  const [planFile, setPlanFile] = useState(null);
   const [shapeList, setShapeList] = useState([]);
-  // liste de toutes les tâches
-  const [tasks, setTasks] = useState([]);
-  // liste des tâches déjà attribuées
-  const [givenTasks, setGivenTasks] = useState([]);
-  const [ganttData, setGanttData] = useState({
-    data: [],
-    links: [{ id: 1, source: 1, target: 2, type: "0" }],
-  });
-
-  useEffect(() => {
-    convertTasks();
-  }, [shapeList]);
-
-  /*Convertir les tâches pour les rendre compatible pour le Gantt*/
-  const convertTasks = () => {
-    let newTasks = [];
-    // shapeList.forEach((shape) => {
-    Planning.map((task) => {
-      const startMoment = moment(task?.manualstart, "YYYY-MM-DD");
-      const endMoment = moment(task?.manualfinish, "YYYY-MM-DD");
-
-      // Si date de fin === date de début => Ajouter un jour à la date de fin => pour un bon affichage sur le planning Gantt
-      if (endMoment.isSame(startMoment, "day")) {
-        endMoment.add(1, "day");
-      }
-
-      const newDates = {
-        start: startMoment.format("DD-MM-YYYY"),
-        end: endMoment.format("DD-MM-YYYY"),
-      };
-
-      // Si la durée est de 0 jour => Date de début = Date de fin => alors la durée est automatiquement renseignée à 1
-      const diffInDays =
-        startMoment && endMoment
-          ? endMoment.diff(startMoment, "days") === 0
-            ? 1
-            : endMoment.diff(startMoment, "days")
-          : null;
-
-      const data = {
-        id: task?.UID,
-        text: task?.name,
-        start_date: newDates.start,
-        end_date: newDates.end,
-        duration: diffInDays,
-        predecessor: "1",
-      };
-      return newTasks.push(data);
-    });
-    // });
-    setGanttData({ ...ganttData, data: newTasks });
-  };
-
   const [confirm, setConfirm] = useState(false);
   const [points, setPoints] = useState([]);
   const [shape, setShape] = useState({
@@ -86,11 +27,10 @@ export default function App() {
     points: points,
     pointsHistory: [],
     color: "red",
-    taskList: [],
+    name: `zone ${shapeList.length + 1}`,
   });
   const [showMessage, setShowMessage] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [initlaShapeToEdit, setInitialShapeToEdit] = useState(null);
   const [shapeToEdit, setShapeToEdit] = useState(null);
   const [pointsToReplace, setPointsToReplace] = useState({
     x: null,
@@ -100,13 +40,7 @@ export default function App() {
     x: null,
     y: null,
   });
-  const [deleteBtn, setDeleteBtn] = useState(false);
-  const [selectedTasks, setSelectedTasks] = useState([]);
-  const [updatedSelectedTasks, setUpdatedSelectedTasks] = useState([]);
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  const [pdfFile, setPdfFile] = useState();
 
   useEffect(() => {
     setShape({
@@ -119,53 +53,41 @@ export default function App() {
     points.length === 0 ? setConfirm(false) : null;
   }, [points, confirm]);
 
-  const fetchTasks = () => {
-    setTasks(Planning);
-  };
-
-  // fonction qui retire une tache de la liste si elle est déjà attribuée à une zone
-  useEffect(() => {
-    const existingTasks = shapeList?.map((task) => {
-      return task.task;
-    });
-  }, [shapeList]);
+  // const handleCloseShape = () => {
+  //   if (points.length > 0) {
+  //     setPoints([...points, points[0]]);
+  //   }
+  // };
 
   const handleColorChange = (newColor) => {
     setShape({ ...shape, color: newColor });
   };
 
-  const handleEditTask = (option) => {
-    const updatedShape = { ...shapeToEdit, taskList: option };
-    // let updatedGivenTasks = givenTasks.filter(
-    //   (task) => !shapeToEdit?.taskList?.includes(task)
-    // );
-
-    // updatedGivenTasks = [...updatedGivenTasks, ...option];
-
-    // setUpdatedSelectedTasks(updatedGivenTasks);
-    setShapeToEdit(updatedShape);
+  const handleNameChange = (newName) => {
+    setShape({ ...shape, name: newName });
   };
-
-  useEffect(() => {
-    setGivenTasks(updatedSelectedTasks);
-  }, [updatedSelectedTasks]);
 
   const handlePlanUpload = (e) => {
-    const uploadedImage = e.target.files[0];
-    const imageURL = URL.createObjectURL(uploadedImage);
-    const img = new window.Image();
-    img.src = imageURL;
-    img.onload = () => {
-      planRef.current.image(img);
-      planRef.current.getLayer().batchDraw();
-    };
-    setDeleteBtn(true);
-  };
-
-  const handleDeletePlan = () => {
-    planRef.current?.image(null);
-    planRef.current?.getLayer().batchDraw();
-    setDeleteBtn(false);
+    if (e.target.files.length > 0) {
+      const fileType = e.target.files[0].type;
+      if (fileType === "image/png" || fileType === "image/jpeg") {
+        const uploadedImage = e.target.files[0];
+        const imageURL = URL.createObjectURL(uploadedImage);
+        const img = new window.Image();
+        img.src = imageURL;
+        img.onload = () => {
+          planRef.current.image(img);
+          planRef.current.getLayer().batchDraw();
+        };
+      } else if (fileType === "application/pdf") {
+        const file = e.target.files[0];
+        setPdfFile(file);
+      } else {
+        null;
+      }
+    } else {
+      null;
+    }
   };
 
   const addPoint = (e) => {
@@ -232,7 +154,6 @@ export default function App() {
       );
       setShapeList(newShapeList);
       setShapeToEdit(null);
-      setInitialShapeToEdit(null);
       setIsEditing(false);
     } else {
       null;
@@ -253,88 +174,53 @@ export default function App() {
     setIsEditing(false);
     setShowMessage(false);
     setShapeToEdit(null);
-    setInitialShapeToEdit(null);
   };
 
-  const handleStartDraw = () => {
+  const handleShapeState = () => {
     setIsDrawing(true);
     setShape({
       shape_id: `shape_${shapeList.length}`,
       points: points,
+      poinsHistory: [],
       color: "#000000",
-      taskList: [],
+      name: `zone ${shapeList.length + 1}`,
     });
     setPoints([]);
   };
 
-  const handleCancelCreation = () => {
-    setShape({});
-    setIsDrawing(false);
-    setIsEditing(false);
-    setPoints([]);
-    setShapeToEdit({});
-    setInitialShapeToEdit(null);
-    setShowMessage(false);
-  };
-
   const handleFinish = () => {
-    if (selectedTasks.length < 1) {
-      alert("veuillez assigner une tâche à la zone");
-    } else {
-      if (isDrawing) {
-        if (points.length > 1) {
-          // Assigner les tâches à la zone
-          const newShape = {
-            ...shape,
-            taskList: selectedTasks,
-          };
-          setShape(newShape);
-          const mergedTasks = [...givenTasks, ...selectedTasks];
-          const uniqueTasks = Array.from(new Set(mergedTasks));
-          setGivenTasks(uniqueTasks);
-          // fin
-          setShapeList([...shapeList, newShape]);
-          setShape({});
-          setPoints([]);
-        }
+    if (isDrawing) {
+      if (points.length > 1 && points.length % 2 === 0) {
+        setShapeList([...shapeList, shape]);
         setShape({});
-        setIsDrawing(false);
         setPoints([]);
-        setConfirm(false);
-      } else {
-        null;
       }
+      setShape({});
+      setIsDrawing(false);
+      setPoints([]);
+      setConfirm(false);
+    } else {
+      null;
     }
   };
 
+  const handleEditShape = () => {};
+
   const handleDeleteShape = () => {
     const idToDelete = shapeToEdit.shape_id;
-    const newShapeList = shapeList.filter((sha) => sha.shape_id !== idToDelete);
+    const newShapeList = shapeList
+      .map((sha) => {
+        return sha.shape_id !== idToDelete ? sha : null;
+      })
+      .filter(Boolean);
     setShapeList(newShapeList);
     setShowMessage(false);
     setIsEditing(false);
     setShapeToEdit(null);
-    setInitialShapeToEdit(null);
-    setGivenTasks(null);
-  };
-
-  useEffect(() => {
-    handleAssingGivenTasks();
-  }, [shapeList]);
-
-  const handleAssingGivenTasks = () => {
-    let newGivenTaskList = [];
-
-    shapeList.forEach((shape) => {
-      const { taskList } = shape;
-      newGivenTaskList.push(...taskList);
-    });
-
-    setGivenTasks(newGivenTaskList);
+    setShowMessage(false);
   };
 
   const handleDragMove = (e, x, y) => {
-    console.log(shapeToEdit);
     setPointsToReplace({
       x: x,
       y: y,
@@ -367,7 +253,6 @@ export default function App() {
   };
 
   const handleAddPointEdit = (e) => {
-    console.log(shapeToEdit);
     // vérifier les 2 points les plus proches
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
@@ -405,35 +290,6 @@ export default function App() {
           point2 = { ...objet, index };
         }
       });
-
-      // Ajouter le dernier point entre le dernier et le premier point
-      const lastPointIndex = shapeToEdit.points.length - 1;
-      const distanceToFirst = Math.sqrt(
-        Math.pow(
-          shapeToEdit.points[lastPointIndex].x - shapeToEdit.points[0].x,
-          2
-        ) +
-          Math.pow(
-            shapeToEdit.points[lastPointIndex].y - shapeToEdit.points[0].y,
-            2
-          )
-      );
-
-      if (distanceToFirst < distanceMin1) {
-        distanceMin2 = distanceMin1;
-        distanceMin1 = distanceToFirst;
-        point2 = point1;
-        point1 = {
-          ...shapeToEdit.points[lastPointIndex],
-          index: lastPointIndex,
-        };
-      } else if (distanceToFirst < distanceMin2) {
-        distanceMin2 = distanceToFirst;
-        point2 = {
-          ...shapeToEdit.points[lastPointIndex],
-          index: lastPointIndex,
-        };
-      }
 
       const nouveauTableau = [...shapeToEdit.points];
       const newHistory = [...shapeToEdit.pointsHistory];
@@ -476,95 +332,69 @@ export default function App() {
   }, [shapeList]);
 
   const handleFinishEdit = () => {
-    if (!shapeToEdit.taskList.length > 0) {
-      alert("veuillez assigner une tâche à la zone");
-    } else {
-      const indexToEdit = shapeList.indexOf(initlaShapeToEdit);
-      const newShapeList = [...shapeList];
-      newShapeList.splice(indexToEdit, 1, shapeToEdit);
-      if (shapeToEdit !== null && shapeToEdit?.points.length < 1) {
-        // Supprimer shapeToEdit de shapeList
-        const newShapeList = shapeList.filter(
-          (shape) => shape.shape_id !== shapeToEdit.shape_id
-        );
-
-        // Supprimer shapeToEdit
-        setShapeToEdit(null);
-        setInitialShapeToEdit(null);
-        setShapeList(newShapeList);
-      }
+    if (shapeToEdit !== null && shapeToEdit?.points.length < 1) {
+      // Supprimer shapeToEdit de shapeList
+      const newShapeList = shapeList.filter(
+        (shape) => shape.shape_id !== shapeToEdit.shape_id
+      );
       setShapeList(newShapeList);
-      setIsEditing(false);
+
+      // Supprimer shapeToEdit
       setShapeToEdit(null);
-      setInitialShapeToEdit(null);
-      setShowMessage(false);
     }
+    setIsEditing(false);
+    setShapeToEdit(null);
   };
 
   return (
     <div className="container">
-      {/* XER & XML */}
-      <p>Json</p>
-      <input onChange={(e) => {}} type="file" />
       <input
         type="file"
-        accept="image/png, image/jpeg"
+        accept="*"
         onChange={(e) => {
           handlePlanUpload(e);
         }}
       />
-      {deleteBtn ? (
+      {planRef ? (
         <button
           onClick={() => {
-            handleDeletePlan();
+            planRef.current?.image(null);
+            planRef.current?.getLayer().batchDraw();
           }}
         >
           Supprimer l'image
         </button>
       ) : null}
-      {!isDrawing && !isEditing ? (
-        <button
-          onClick={() => {
-            handleStartDraw();
-          }}
-        >
-          Créer une zone
-        </button>
-      ) : isDrawing && points.length > 2 ? (
-        <button
-          onClick={() => {
-            setConfirm(true);
-          }}
-        >
-          Terminer
-        </button>
-      ) : null}
-      {isDrawing ? (
-        <button
-          onClick={() => {
-            handleCancelCreation();
-          }}
-        >
-          Annuler
-        </button>
-      ) : null}
-      {isEditing ? (
-        <button
-          onClick={() => {
-            setShowMessage(true);
-          }}
-        >
-          Modifications terminées
-        </button>
-      ) : null}
-      {points?.length > 0 ||
-      (shapeToEdit && shapeToEdit?.points?.length > 0 && isEditing) ? (
+      <button
+        className={isDrawing || isEditing ? "active" : "create"}
+        onClick={() => {
+          isDrawing
+            ? setConfirm(true)
+            : isEditing
+            ? handleFinishEdit()
+            : handleShapeState();
+        }}
+        width={50}
+        height={50}
+      >
+        {isDrawing && points.length > 0
+          ? "Terminer"
+          : isEditing
+          ? "Modifications terminées"
+          : !isDrawing
+          ? "Créer une zone"
+          : null}
+      </button>
+      {points.length > 0 ||
+      (shapeToEdit && shapeToEdit.points.length > 0 && isEditing) ? (
         <button
           onClick={() => {
             isDrawing ? handleUndo() : isEditing ? handleUndoEdit() : null;
           }}
+          width={50}
+          height={50}
         >
-          Revenir au dernier point
+          Revenir en arrière
         </button>
       ) : null}
       {shapeList.length > 0 ? (
@@ -572,6 +402,8 @@ export default function App() {
           onClick={() => {
             handleClear();
           }}
+          width={50}
+          height={50}
         >
           Effacer le plan
         </button>
@@ -588,6 +420,7 @@ export default function App() {
           Modifications terminées
         </button>
       ) : null} */}
+
       <Stage
         width={window.innerWidth}
         height={window.innerHeight}
@@ -614,13 +447,14 @@ export default function App() {
                     }
                   }
                 );
+                console.log(shape.points, objetAvecYLePlusBas);
                 return (
                   <Group>
                     <Text
                       fill={"black"}
-                      text={shape?.taskList[0].name}
+                      text={shape?.name}
                       x={
-                        objetAvecYLePlusBas ? objetAvecYLePlusBas.x - 100 : null
+                        objetAvecYLePlusBas ? objetAvecYLePlusBas.x + 10 : null
                       }
                       y={
                         objetAvecYLePlusBas ? objetAvecYLePlusBas.y - 35 : null
@@ -647,7 +481,6 @@ export default function App() {
                       onDblClick={() => {
                         setShowMessage(true);
                         setShapeToEdit(shape);
-                        setInitialShapeToEdit(shape);
                       }}
                     />
                     {isEditing && shape === shapeToEdit && pts.length > 0
@@ -732,22 +565,10 @@ export default function App() {
             placeholder="Enter color"
             onChange={(e) => handleColorChange(e.target.value)}
           />
-          <Select
-            isMulti
-            options={tasks}
+          <input
+            type="text"
             placeholder="Enter name"
-            // si problème de disable
-            // isOptionDisabled={(option) => {
-            //   const same = givenTasks.filter((task) => {
-            //     return task.UID === option.UID;
-            //   });
-            //   return same.length > 0;
-            // }}
-
-            isOptionDisabled={(option) => givenTasks.includes(option)}
-            getOptionLabel={(option) => option.name}
-            getOptionValue={(option) => option.name}
-            onChange={(option) => setSelectedTasks(option)}
+            onChange={(e) => handleNameChange(e.target.value)}
           />
           <p>Shape color: {shape.color}</p>
           <p>Shape name: {shape.name}</p>
@@ -765,13 +586,6 @@ export default function App() {
             }}
           >
             Revenir au dessin de la forme
-          </button>
-          <button
-            onClick={() => {
-              handleCancelCreation();
-            }}
-          >
-            Annuler la création
           </button>
         </div>
       ) : null}
@@ -792,39 +606,7 @@ export default function App() {
           >
             Supprimer la forme
           </button>
-          <span>
-            <p>Modifier la tâche attribuée</p>
-            <Select
-              isMulti
-              options={tasks}
-              placeholder="Enter name"
-              defaultValue={[...shapeToEdit?.taskList]}
-              isOptionDisabled={(option) => givenTasks.includes(option)}
-              getOptionLabel={(option) => option.name}
-              getOptionValue={(option) => option.name}
-              onChange={(option) => handleEditTask(option)}
-            />
-          </span>
-          {shapeToEdit !== initlaShapeToEdit ? (
-            <button
-              onClick={() => {
-                handleFinishEdit();
-              }}
-            >
-              Modifications terminée
-            </button>
-          ) : null}
-          <button
-            onClick={() => {
-              handleCancelCreation();
-            }}
-          >
-            Annuler
-          </button>
         </div>
-      ) : null}
-      {ganttData && ganttData?.data?.length > 0 ? (
-        <Gantt start={startDate} end={endDate} tasks={ganttData} />
       ) : null}
     </div>
   );
